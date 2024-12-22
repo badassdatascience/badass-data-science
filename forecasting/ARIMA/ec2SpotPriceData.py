@@ -9,6 +9,7 @@ import numpy as np
 import time
 import datetime
 import matplotlib.pyplot as plt
+import uuid
 
 #
 # Define class for retrieving ec2 spot price data from AWS
@@ -33,6 +34,11 @@ class ec2SpotPriceData():
         # save the initiation time
         #
         self.config['initiation_timestamp_str'] = str(time.time())
+
+        #
+        # create a unique ID for each instance
+        #
+        self.config['uuid'] = str(uuid.uuid4()) + str(uuid.uuid4())
         
     #
     # The "fit" language, which might not seem natural
@@ -115,10 +121,7 @@ class ec2SpotPriceData():
         #
         # We need to define a custom resampler to compute the
         # mean value over the interval period
-        #
-        # There might be a better way to do this using native
-        # pandas operations:
-        #
+
         def custom_resampler(arraylike):
             return np.mean([float(x) for x in arraylike])
 
@@ -140,9 +143,10 @@ class ec2SpotPriceData():
     # Save
     #
     def save(self):
-        with open(self.config['output_filename_root_directory'] + '/ec2_spot_price__' + self.config['initiation_timestamp_str'] + '.pickle', 'wb') as f:
-            pickle.dump(self, f)
         
+        with open(self.config['output_filename_root_directory'] + '/ec2_instance' + '__' + self.config['uuid'] + '__' + self.config['initiation_timestamp_str'] + '.pickle', 'wb') as f:
+            pickle.dump(self, f)
+            
     #
     # Plot
     #
@@ -173,8 +177,8 @@ class ec2SpotPriceData():
         plt.tight_layout()
 
         if save:
-            plt.savefig(self.config['output_filename_root_directory'] + '/ec2_spot_price__' + self.config['initiation_timestamp_str'] + '.png')
+            plt.savefig(self.config['output_filename_root_directory'] + '/ec2_spot_price__' + self.config['uuid'] + '__' + self.config['initiation_timestamp_str'] + '.png')
         
         plt.show()
         plt.close()
-        
+

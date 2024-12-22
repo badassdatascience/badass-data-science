@@ -1,5 +1,5 @@
 {
-    "output_filename_root_directory" : "/home/emily/Desktop/projects/bds/forecasting/ARIMA/output",
+    "output_filename_root_directory" : "/home/emily/Desktop/projects/test/bds/forecasting/ARIMA/output",
     "product_description" : "Linux/UNIX",
     "availability_zone" : "us-west-2a",
     "instance_type" : "m2.xlarge",
