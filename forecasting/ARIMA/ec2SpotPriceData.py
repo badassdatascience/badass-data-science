@@ -3,6 +3,7 @@
 #
 import boto3
 import pickle
+import json
 import pandas as pd
 import numpy as np
 import time
@@ -20,44 +21,18 @@ class ec2SpotPriceData():
     #
     def __init__(
             self,
-
-            #
-            # What kind of ec2 spot price do we want?
-            #
-            product_description = 'Linux/UNIX',
-            availability_zone = 'us-west-2a',
-            instance_type = 'm2.xlarge',
-
-            #
-            # These two variables handle pagination;
-            # there is probably a better way to handle pagination
-            #
-            time_to_sleep_between_post_requests = 5,
-            number_of_times_to_run_post_requests = 5,
-
-            #
-            # Pandas resampling frequency expressed as "'X'min";
-            # "1440min" is a day:
-            #
-            frequency_str = '1440min',
-
-            output_directory = None,
+            configuration_json_filename,
     ):
 
-        self.product_description = product_description
-        self.availability_zone = availability_zone
-        self.instance_type = instance_type
-        self.time_to_sleep_between_post_requests = time_to_sleep_between_post_requests
-        self.number_of_times_to_run_post_requests = number_of_times_to_run_post_requests
-        self.frequency_str = frequency_str
+        with open(configuration_json_filename) as f:
+            self.config = json.load(f)
 
-        self.output_directory = output_directory
-
+        self.configuration_json_filename = configuration_json_filename
+            
         #
         # save the initiation time
         #
-        self.initiation_timestamp_str = str(datetime.datetime.utcnow()).replace(' ', '--')
-        
+        self.config['initiation_timestamp_str'] = str(time.time())
         
     #
     # The "fit" language, which might not seem natural
@@ -81,9 +56,9 @@ class ec2SpotPriceData():
         self.df_pre_resample_list = []
 
         response = ec2.describe_spot_price_history(
-            AvailabilityZone = self.availability_zone,
-            ProductDescriptions = [self.product_description],
-            InstanceTypes = [self.instance_type],
+            AvailabilityZone = self.config['availability_zone'],
+            ProductDescriptions = [self.config['product_description']],
+            InstanceTypes = [self.config['instance_type']],
         )
         spot_price_list.extend(response['SpotPriceHistory'])
 
@@ -98,13 +73,13 @@ class ec2SpotPriceData():
         #
         # There is probably a better way to handle pagination
         #
-        for i in range(0, self.number_of_times_to_run_post_requests):
-            time.sleep(self.time_to_sleep_between_post_requests)
+        for i in range(0, self.config['number_of_times_to_run_post_requests']):
+            time.sleep(self.config['time_to_sleep_between_post_requests'])
             response = ec2.describe_spot_price_history(
                 NextToken = response['NextToken'],
-                AvailabilityZone = self.availability_zone,
-                ProductDescriptions = [self.product_description],
-                InstanceTypes = [self.instance_type],
+                AvailabilityZone = self.config['availability_zone'],
+                ProductDescriptions = [self.config['product_description']],
+                InstanceTypes = [self.config['instance_type']],
                 EndTime = timestamp_min,
                 StartTime = timestamp_min - datetime.timedelta(weeks=6)
             )
@@ -141,6 +116,9 @@ class ec2SpotPriceData():
         # We need to define a custom resampler to compute the
         # mean value over the interval period
         #
+        # There might be a better way to do this using native
+        # pandas operations:
+        #
         def custom_resampler(arraylike):
             return np.mean([float(x) for x in arraylike])
 
@@ -148,7 +126,7 @@ class ec2SpotPriceData():
 
         self.series = (
             self.df_pre_resample['SpotPrice']
-            .resample(self.frequency_str)
+            .resample(self.config['frequency_str'])
             .apply(custom_resampler)
         )
 
@@ -162,7 +140,7 @@ class ec2SpotPriceData():
     # Save
     #
     def save(self):
-        with open(self.output_directory + '/' + self.initiation_timestamp_str + '.pickle', 'wb') as f:
+        with open(self.config['output_filename_root_directory'] + '/ec2_spot_price__' + self.config['initiation_timestamp_str'] + '.pickle', 'wb') as f:
             pickle.dump(self, f)
         
     #
@@ -178,9 +156,9 @@ class ec2SpotPriceData():
 
         if title == None:
             title = "Mean ec2 spot prices per day\n%s - %s - %s" % (
-                self.availability_zone,
-                self.instance_type,
-                self.product_description,
+                self.config['availability_zone'],
+                self.config['instance_type'],
+                self.config['product_description'],
             )
         
         timestamp = self.df.index
@@ -195,7 +173,7 @@ class ec2SpotPriceData():
         plt.tight_layout()
 
         if save:
-            plt.savefig(self.output_directory + '/' + self.initiation_timestamp_str + '.png')
+            plt.savefig(self.config['output_filename_root_directory'] + '/ec2_spot_price__' + self.config['initiation_timestamp_str'] + '.png')
         
         plt.show()
         plt.close()
