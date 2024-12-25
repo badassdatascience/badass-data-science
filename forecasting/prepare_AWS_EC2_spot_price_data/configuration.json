@@ -1,9 +1,0 @@
-{
-    "output_filename_root_directory" : "output",
-    "product_description" : "Linux/UNIX",
-    "availability_zone" : "us-west-2a",
-    "instance_type" : "m2.xlarge",
-    "time_to_sleep_between_post_requests" : 5,
-    "number_of_times_to_run_post_requests" : 5,
-    "frequency_str" : "1440min"
-}
