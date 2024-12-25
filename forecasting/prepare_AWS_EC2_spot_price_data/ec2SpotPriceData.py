@@ -49,7 +49,7 @@ class ec2SpotPriceData():
         self.pull_ec2_spot_price_data_from_AWS()
         self.assemble_and_clean_the_pull_data()
         self.resample()
-        self.create_final_dataframe()
+        self.create_final_dataframes()
         
     #
     # Pull ec2 spot price data from AWS
@@ -136,12 +136,37 @@ class ec2SpotPriceData():
     #
     # Create final dataframe
     #
-    def create_final_dataframe(self):
+    def create_final_dataframes(self):
         self.df = (
             pd
-            .DataFrame({'spot_price' : self.series})
-            .iloc[0:-1, :]
+            .DataFrame(
+                {
+                    'spot_price' : self.series,
+                }
+            )
         )
+
+        self.df['Timestamp'] = self.df.index
+
+        #
+        # We want to remove today's date since more information might come
+        # in before the day ends
+        #
+        def remove_todays_date(df):
+            df = df.copy()
+            last_date = np.max(df['Timestamp']).date()
+            df['date_not_time'] = [x.date() for x in df['Timestamp']]
+            df = df[df['date_not_time'] != last_date]
+            return df
+        
+        self.df = remove_todays_date(self.df)
+        self.df_pre_resample = remove_todays_date(self.df_pre_resample)
+
+        #
+        # Ensure proper sorting
+        #
+        self.df.sort_values(by = ['date_not_time'], inplace=True)
+        self.df_pre_resample.sort_values(by = ['date_not_time'], inplace=True)
 
     #
     # Save
@@ -150,7 +175,13 @@ class ec2SpotPriceData():
         
         with open(self.config['output_filename_root_directory'] + '/ec2_instance' + '__' + self.config['uuid'] + '__' + self.config['initiation_timestamp_str'] + '.pickle', 'wb') as f:
             pickle.dump(self, f)
-            
+
+        self.df.to_csv(
+            self.config['output_filename_root_directory'] + '/DF__' + self.config['uuid'] + '__' + self.config['initiation_timestamp_str'] + '.csv', index = True)
+
+        self.df_pre_resample.to_csv(
+            self.config['output_filename_root_directory'] + '/DF_pre_resample__' + self.config['uuid'] + '__' + self.config['initiation_timestamp_str'] + '.csv', index = True)
+
     #
     # Plot
     #
