@@ -9,7 +9,7 @@ import datetime
 class Ec2SpotPrice(models.Model):
 
     #
-    # Data model definition
+    # data model definition
     #
     spot_price = models.FloatField(null = False)
     timestamp = models.DateTimeField('Timestamp for this entry')
@@ -17,6 +17,20 @@ class Ec2SpotPrice(models.Model):
     availability_zone = models.CharField(max_length = 200, null = False)
     instance_type = models.CharField(max_length = 200, null = False)
     pub_date = models.DateTimeField('Date loaded into database')
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                name = 'unique_timestamp_product_description_availability_zone_instance_type',
+                fields = [
+                    'timestamp',
+                    'product_description',
+                    'availability_zone',
+                    'instance_type',
+                ],
+            )
+        ]
+  
 
     #
     # create objects
@@ -32,7 +46,6 @@ class Ec2SpotPrice(models.Model):
                 pub_date = datetime.datetime.now(),  # there is a better way for this
             )
             ec2_spot_price_instance.save()
-            
     
     #
     # Pull ec2 spot price data from AWS and save instances
@@ -84,5 +97,26 @@ class Ec2SpotPrice(models.Model):
 
         return df
 
+    #
+    # pull ec2 spot price information from AWS
+    #
+    def fetch_and_load_into_database(
+        product_description,
+        availability_zone,
+        instance_type,
+        time_to_sleep_between_post_requests = 5,
+        number_of_times_to_run_post_requests = 5,
+    ):
+
+        df = Ec2SpotPrice.pull_ec2_data(
+            product_description,
+            availability_zone,
+            instance_type,
+            time_to_sleep_between_post_requests = 5,
+            number_of_times_to_run_post_requests = 5,
+        )
+        
+        Ec2SpotPrice.create_objects(df)
+        return df
         
 
