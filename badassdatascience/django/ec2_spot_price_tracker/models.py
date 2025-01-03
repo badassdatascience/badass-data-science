@@ -66,7 +66,6 @@ class Ec2SpotPrice(models.Model):
         product_description,
         availability_zone,
         instance_type,
-
         time_to_sleep_between_post_requests = 5,
         number_of_times_to_run_post_requests = 5,
     ):
@@ -124,8 +123,8 @@ class Ec2SpotPrice(models.Model):
             product_description,
             availability_zone,
             instance_type,
-            time_to_sleep_between_post_requests = 5,
-            number_of_times_to_run_post_requests = 5,
+            time_to_sleep_between_post_requests = time_to_sleep_between_post_requests,
+            number_of_times_to_run_post_requests = number_of_times_to_run_post_requests,
         )
         
         Ec2SpotPrice.create_objects(df)
