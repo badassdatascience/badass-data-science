@@ -11,7 +11,7 @@ process updateEc2SpotPriceDatabase {
     """
 }
 
-process testSomething {
+process resample {
     input:
     path x
 
@@ -20,10 +20,10 @@ process testSomething {
 
     script:
     """
-    echo ${params.bds_home} > y
+    python3 '${params.bds_home}/${params.ec2_django_scripts_directory}/resample.py' > y
     """
 }
 
 workflow {
-    updateEc2SpotPriceDatabase | testSomething
+    updateEc2SpotPriceDatabase | resample
 }
