@@ -7,7 +7,6 @@ import os
 import sys
 import pandas as pd
 import numpy as np
-import matplotlib.pyplot as plt
 
 #
 # user settings
@@ -85,18 +84,16 @@ def resample(df, frequency_str = '1440min'):
 df_post_resample = resample(df)
 
 #
-# generate some stdout content useful for debugging Nextflow
+# generate some stdout content useful for chaining scripts in Nextflow
 #
-print()
-print(df_post_resample)
-print()
+print(df_post_resample.to_csv(sep=','))
 
 
 
-
-plt.figure()
-plt.plot(df_post_resample.index, df_post_resample['spot_price'], '.-')
-plt.xticks(rotation = 80)
-plt.tight_layout()
-plt.savefig('output/test.png')
-plt.close()
+#import matplotlib.pyplot as plt
+#plt.figure()
+#plt.plot(df_post_resample.index, df_post_resample['spot_price'], '.-')
+#plt.xticks(rotation = 80)
+#plt.tight_layout()
+#plt.savefig('output/test.png')
+#plt.close()
