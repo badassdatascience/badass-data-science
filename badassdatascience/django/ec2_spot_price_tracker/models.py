@@ -45,15 +45,17 @@ class Ec2SpotPrice(models.Model):
     #
     def create_objects(df):
         for i, row in df.iterrows():
-            ec2_spot_price_instance = Ec2SpotPrice(
-                spot_price = row['SpotPrice'],
+            ec2_spot_price_instance, created = Ec2SpotPrice.objects.update_or_create(
                 timestamp = row['Timestamp'],
                 product_description = row['ProductDescription'],
                 availability_zone = row['AvailabilityZone'],
                 instance_type = row['InstanceType'],
-                pub_date = datetime.datetime.now(),  # there is a better way for this
+
+                defaults = {
+                    'spot_price' : row['SpotPrice'],
+                    'pub_date' : datetime.datetime.now(),  # there is a better way for this
+                },
             )
-            ec2_spot_price_instance.save()
     
     #
     # Pull ec2 spot price information from AWS
