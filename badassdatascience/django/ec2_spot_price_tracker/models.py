@@ -1,15 +1,20 @@
+#
+# Import useful modules
+#
 from django.db import models
-
 import boto3
 import pandas as pd
 import numpy as np
 import time
 import datetime
 
+#
+# Define a model for describing AWS EC2 spot prices
+#
 class Ec2SpotPrice(models.Model):
 
     #
-    # data model definition
+    # Data model definition
     #
     spot_price = models.FloatField(null = False)
     timestamp = models.DateTimeField('Timestamp for this entry')
@@ -18,6 +23,9 @@ class Ec2SpotPrice(models.Model):
     instance_type = models.CharField(max_length = 200, null = False)
     pub_date = models.DateTimeField('Date loaded into database')
 
+    #
+    # Enforce uniqueness
+    #
     class Meta:
         constraints = [
             models.UniqueConstraint(
@@ -30,10 +38,10 @@ class Ec2SpotPrice(models.Model):
                 ],
             )
         ]
-  
 
     #
-    # create objects
+    # Create instances of this class and 
+    # store them in the database
     #
     def create_objects(df):
         for i, row in df.iterrows():
@@ -48,7 +56,7 @@ class Ec2SpotPrice(models.Model):
             ec2_spot_price_instance.save()
     
     #
-    # Pull ec2 spot price data from AWS and save instances
+    # Pull ec2 spot price information from AWS
     #
     def pull_ec2_data(
         product_description,
@@ -98,7 +106,7 @@ class Ec2SpotPrice(models.Model):
         return df
 
     #
-    # pull ec2 spot price information from AWS
+    # Entry point
     #
     def fetch_and_load_into_database(
         product_description,
