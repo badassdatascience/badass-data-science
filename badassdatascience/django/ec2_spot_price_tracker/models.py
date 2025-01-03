@@ -2,6 +2,8 @@
 # Import useful modules
 #
 from django.db import models
+from django.utils import timezone
+
 import boto3
 import pandas as pd
 import numpy as np
@@ -53,7 +55,7 @@ class Ec2SpotPrice(models.Model):
 
                 defaults = {
                     'spot_price' : row['SpotPrice'],
-                    'pub_date' : datetime.datetime.now(),  # there is a better way for this
+                    'pub_date' : timezone.now(),  # there is a better way for this
                 },
             )
     
