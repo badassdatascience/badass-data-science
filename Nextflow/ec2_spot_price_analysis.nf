@@ -16,11 +16,13 @@ process resample {
     path x
 
     output:
-    path 'y'
+    path 'resampled.csv'
+    path 'resampled.parquet'
+    path 'mean_daily_spot_prices.png'
 
     script:
     """
-    python3 '${params.bds_home}/${params.ec2_django_scripts_directory}/resample.py' > y
+    python3 '${params.bds_home}/${params.ec2_django_scripts_directory}/resample.py'
     """
 }
 
