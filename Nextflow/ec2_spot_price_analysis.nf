@@ -26,6 +26,20 @@ process resample {
     """
 }
 
+process test_stationarity {
+    input:
+    path 'resampled.parquet'
+
+    output:
+    path 'adfuller_result.txt'
+
+    script:
+    """
+    python3 '${params.bds_home}/${params.ec2_django_scripts_directory}/adfuller_test.py'
+    """
+}
+
 workflow {
     updateEc2SpotPriceDatabase | resample
+    test_stationarity
 }
