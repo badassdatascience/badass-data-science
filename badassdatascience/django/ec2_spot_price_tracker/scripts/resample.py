@@ -87,7 +87,7 @@ df_post_resample = resample(df)
 #
 # generate some output useful for chaining scripts in Nextflow
 #
-df_post_resample.to_csv('resampled.csv', sep = ',', index = False)
+df_post_resample.to_csv('resampled.csv', sep = ',')
 df_post_resample.to_parquet('resampled.parquet')
 
 #

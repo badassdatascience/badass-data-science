@@ -16,9 +16,7 @@ process resample {
     path x
 
     output:
-    path 'resampled.csv'
     path 'resampled.parquet'
-    path 'mean_daily_spot_prices.png'
 
     script:
     """
@@ -31,15 +29,14 @@ process test_stationarity {
     path 'resampled.parquet'
 
     output:
-    path 'adfuller_result.txt'
+    path 'adfuller_test_result.csv'
 
     script:
     """
-    python3 '${params.bds_home}/${params.ec2_django_scripts_directory}/adfuller_test.py'
+    python3 '${params.bds_home}/${params.ec2_django_scripts_directory}/adfuller_test.py' > adfuller_test_result.csv
     """
 }
 
 workflow {
-    updateEc2SpotPriceDatabase | resample
-    test_stationarity
+    updateEc2SpotPriceDatabase | resample | test_stationarity
 }
