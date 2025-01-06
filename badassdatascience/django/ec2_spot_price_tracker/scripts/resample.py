@@ -7,6 +7,7 @@ import os
 import sys
 import pandas as pd
 import numpy as np
+import matplotlib.pyplot as plt
 
 #
 # user settings
@@ -84,16 +85,20 @@ def resample(df, frequency_str = '1440min'):
 df_post_resample = resample(df)
 
 #
-# generate some stdout content useful for chaining scripts in Nextflow
+# generate some output useful for chaining scripts in Nextflow
 #
-print(df_post_resample.to_csv(sep=','))
+df_post_resample.to_csv('resampled.csv', sep = ',', index = False)
+df_post_resample.to_parquet('resampled.parquet')
 
-
-
-#import matplotlib.pyplot as plt
-#plt.figure()
-#plt.plot(df_post_resample.index, df_post_resample['spot_price'], '.-')
-#plt.xticks(rotation = 80)
-#plt.tight_layout()
-#plt.savefig('output/test.png')
-#plt.close()
+#
+# generate figure
+#
+plt.figure()
+plt.plot(df_post_resample.index, df_post_resample['spot_price'], '.-')
+plt.xticks(rotation = 80)
+plt.xlabel('Date')
+plt.ylabel('EC2 Spot Instance Price')
+plt.title('EC2 Spot Instance Price')
+plt.tight_layout()
+plt.savefig('mean_daily_spot_prices.png')
+plt.close()
