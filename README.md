@@ -1,5 +1,5 @@
 # bds
-Demonstration content and blog material
+Skills demonstration content and blog material.
 
 
 
