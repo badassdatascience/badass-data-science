@@ -54,4 +54,10 @@ if __name__ == '__main__':
         ['m2.xlarge'],
     )
 
+    #
+    # Send results to stdout for Nextflow-related testing
+    #
+    print()
+    print(df)
+    print()
 
