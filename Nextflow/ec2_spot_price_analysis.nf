@@ -1,5 +1,4 @@
 
-
 params.bds_home = '/home/emily/Desktop/projects/test/badassdatascience'
 params.ec2_django_scripts_directory = 'badassdatascience/django/ec2_spot_price_tracker/scripts'
 
@@ -40,7 +39,7 @@ process test_stationarity {
     """
 }
 
-process find_best_arima {
+process find_best_ARIMA_model {
     input:
     path 'adfuller_test_result.csv'
     path 'resampled.parquet'
@@ -52,5 +51,5 @@ process find_best_arima {
 }
 
 workflow {
-    updateEc2SpotPriceDatabase | resample | test_stationarity | find_best_arima
+    updateEc2SpotPriceDatabase | resample | test_stationarity | find_best_ARIMA_model
 }
