@@ -1,8 +1,7 @@
 
-params.ec2_django_scripts_directory = 'badassdatascience/django/ec2_spot_price_tracker/scripts'
 
 params.bds_home = '/home/emily/Desktop/projects/test/badassdatascience'
-
+params.ec2_django_scripts_directory = 'badassdatascience/django/ec2_spot_price_tracker/scripts'
 
 process updateEc2SpotPriceDatabase {
     output:
