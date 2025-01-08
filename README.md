@@ -40,7 +40,7 @@ Note: One can get better ETLs (i.e., ETLs that are easier to maintain) by using 
 You'll first need to define the root location of this repository using the "BDS_HOME" e.g.:
 
 ```
-export BDS_HOME=/home/user/Desktop/projects/badassdatascience
+export BDS_HOME=/home/user/Desktop/projects/badass-data-science
 ```
 
 

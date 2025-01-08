@@ -1,5 +1,5 @@
 
-params.bds_home = '/home/emily/Desktop/projects/test/badassdatascience'
+params.bds_home = '/home/emily/Desktop/projects/test/badass-data-science'
 params.ec2_django_scripts_directory = 'badassdatascience/django/ec2_spot_price_tracker/scripts'
 
 process updateEc2SpotPriceDatabase {
