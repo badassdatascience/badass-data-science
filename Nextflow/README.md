@@ -1,5 +1,7 @@
 # Nextflow Demos
 
+Note:  I'm two days into learning Nextflow, so this code may not represent the most optimal way to express the indended pipelines. That being said, these Nextflow scripts do run successfully:
+
 ## Forecasting EC2 Spot Prices
 
 The Nextflow script [ec2_spot_price_analysis.nf](ec2_spot_price_analysis.nf) runs a series of scripts that
