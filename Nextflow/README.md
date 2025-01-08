@@ -9,4 +9,3 @@ The Nextflow script "ec2_spot_price_analysis.nf" runs a series of scripts that
 - Creates an ARIMA model of the time series using heuristically derived parameters
 - Creates an ARIMA model using a stepwise search to derive parameters
 - Compares the two ARIMA models
-
