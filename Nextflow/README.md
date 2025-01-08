@@ -12,7 +12,7 @@ The Nextflow script [ec2_spot_price_analysis.nf](ec2_spot_price_analysis.nf) run
 
 Example output can be found in the subdirectory [saved_output_examples/ec2_spot_price_analysis](saved_output_examples/ec2_spot_price_analysis) which contains the final output of this Nextflow pipeline expressed as a Jupyter notebook along with a snapshot of the Django database used to produce these results. Note that the required Django object model definition, as well as the scripts called by this Nextflow pipeline, are located in the [badassdatascience/django/ec2_spot_price_tracker](../badassdatascience/django/ec2_spot_price_tracker). Once of these scripts, [run_notebook.py](../badassdatascience/django/ec2_spot_price_tracker/scripts/run_notebook.py), runs the following notebook from the command line:
 
-- [../badassdatascience/forecasting/ARIMA/ARIMA_demo_forecasting_EC2_spot_prices.ipynb](badassdatascience/forecasting/ARIMA/ARIMA_demo_forecasting_EC2_spot_prices.ipynb)
+- [badassdatascience/forecasting/ARIMA/ARIMA_demo_forecasting_EC2_spot_prices.ipynb](../badassdatascience/forecasting/ARIMA/ARIMA_demo_forecasting_EC2_spot_prices.ipynb)
 
 
 
