@@ -12,7 +12,7 @@ Note: The Badass Data Science blog is currently down for refactoring; I'll repub
 
 This section consists of a Jupyter notebook that forecasts EC2 spot prices using ARIMA models:
 
-- badassdatascience/forecasting/ARIMA/ARIMA_demo_forecasting_EC2_spot_prices.ipynb
+- [ARIMA_demo_forecasting_EC2_spot_prices.ipynb](badassdatascience/forecasting/ARIMA/ARIMA_demo_forecasting_EC2_spot_prices.ipynb)
 
 While this notebook can be run from the Jupyter GUI, I also provide a Nextflow pipeline that updates the EC2 spot price database and resamples its contents. This is designed to be run once per day:
 
