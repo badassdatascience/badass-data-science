@@ -4,11 +4,11 @@ This repository contains multiple skills demonstrations--to assist my employment
 
 Note: The Badass Data Science blog is currently down for refactoring; I'll republish it soon.
 
-## Demos by subject matter
+## Skill Demonstrations by Subject Matter
 
-### Forecasting
+#### Forecasting
 
-#### ARIMA Modeling of EC2 Spot Prices
+##### ARIMA Modeling of EC2 Spot Prices
 
 This consists of a Jupyter notebook that forecasts EC2 spot prices using ARIMA models:
 
@@ -22,11 +22,11 @@ Finally, a Django model provides the object modeling infrastructure for both the
 
 - badassdatascience/django/ec2_spot_price_tracker/models.py
 
-### Nextflow
+#### Nextflow
 
 See the "ARIMA modeling of EC2 Spot Prices" in the "Forecasting" section of this document to see an example of using Nextflow to control this forecasting pipeline. This pipeline coordinates the whole forecasting process from data update to resampling to time series analysis.
 
-### Object Modeling
+#### Object Modeling
 
 See the "ARIMA modeling of EC2 Spot Prices" in the "Forecasting" section of this document to see how I use Django for object modeling of time series data. When run in conjunction with Nextflow, the result is an ETL pipeline that prepares time series data for the EC2 spot price forecasting task.
 
