@@ -8,7 +8,7 @@ Note: The Badass Data Science blog is currently down for refactoring; I'll repub
 
 #### Forecasting
 
-##### ARIMA Modeling of EC2 Spot Prices
+###### ARIMA Modeling of EC2 Spot Prices
 
 This consists of a Jupyter notebook that forecasts EC2 spot prices using ARIMA models:
 
