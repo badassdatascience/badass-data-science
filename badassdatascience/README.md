@@ -1,6 +1,6 @@
 # Python Modules
 
-This directory contains all the Python modules and many of the scripts. Considerit the "top" level. Setting $BDS_HOME to this directory's parent directory, i.e.
+This directory contains all the Python modules and many of the scripts. Consider it the "top" level.
 
 ### How to Use This
 
