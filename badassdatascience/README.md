@@ -1,5 +1,31 @@
 # Python Modules
 
+This directory contains all the Python modules and many of the scripts. Considerit the "top" level. Setting $BDS_HOME to this directory's parent directory, i.e.
+
+### How to Use This
+
+In the shell:
+```
+export BDS_HOME=/home/emily/Desktop/projects/badassdatascience
+```
+
+Then in Python:
+```
+# load system libraries
+import sys
+import os
+
+# retrieve the $BDS_HOME environment variable's value
+application_root_directory = os.environ['BDS_HOME']
+
+# include $BDS_HOME in the Python path
+sys.path.append(application_root_directory + '/badassdatascience/django/infrastructure')
+```
+
+See the section below that outlines how to additionally include Django access:
+
+### Accessing the Django Modules:
+
 In the shell:
 ```
 export BDS_HOME=/home/emily/Desktop/projects/badassdatascience
