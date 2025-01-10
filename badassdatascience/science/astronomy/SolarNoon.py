@@ -110,14 +110,22 @@ class SolarNoon():
         self.output_json = json.dumps(output)
         pp.pprint(output)
 
-
 #
 # test drive
 #
 if __name__ == "__main__":
-        
+
+    import pandas as pd
+    import matplotlib.pyplot as plt
+
+    from badassdatascience.utilities.badass_datetime.badass_datetime import convert_datetime_hms_to_hour_decimal
+    
+    #
+    # individual test cases
+    #
     s = SolarNoon()
     s.fit()
+    print()
     s.summary()
     
     date_to_use = datetime.datetime(2024, 1, 1, tzinfo = pytz.utc).date()
@@ -125,6 +133,32 @@ if __name__ == "__main__":
     s.fit()
     s.summary()
 
+    s = SolarNoon(
+        date_to_use_local = date_to_use,
+        local_timezone = 'UTC',
+    )
+    s.fit()
+    s.summary()
 
+    #
+    # computation for a whole year
+    #
+    date_list = [
+        datetime.date(2024, 1, 1) + datetime.timedelta(days = x)
+        for x in range(0, 365 + 1)
+    ]
+    df = pd.DataFrame({'date' : pd.to_datetime(date_list)})
+    
+    def apply_solar_noon(date_item):
+        s = SolarNoon(date_to_use_local = date_item)
+        s.fit()
+        noon = s.noon_local_datetime
+        noon_decimal = convert_datetime_hms_to_hour_decimal(noon)
+        return noon_decimal
 
+    df['solar_noon'] = df['date'].apply(apply_solar_noon)
 
+    print()
+    print(df)
+    print()
+    
