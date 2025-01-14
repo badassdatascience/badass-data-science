@@ -42,7 +42,7 @@ config = {
     # Do we want to use a variable learning rate?
     # If so, what value?
     #
-    'use_variable_learning_rate' : True,
+    'use_variable_learning_rate' : False,
     'learning_rate' : 0.001,
 
     #
@@ -81,7 +81,7 @@ config = {
     'dense_activation_function' : 'LeakyReLU',
     'final_dense_activation_function' : 'LeakyReLU',
 
-    'epochs' : 100,
+    'epochs' : 200,
     'batch_size' : 256,
 
     'loss_function' : 'mse',
