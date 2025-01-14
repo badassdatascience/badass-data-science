@@ -1,17 +1,3 @@
-"""Notable runs:
-
-57f47108-380d-4e78-aeb9-7ebccd07ec65----5d7a6356-96d2-427d-abb5-a13531c7b04e
-- No variation of learning rate
-- Much dropout
-- Much batch normalization
-- batch size = 256
-- learning rate = 0.001
-- trained quickly with 100 epochs
-- converged
-"""
-
-
-
 #
 # Load useful libraries
 #
@@ -40,19 +26,23 @@ from numba import cuda
 # CRUDE:  Perhaps these values should be specified in
 # an external configuration file:
 #
-config = {
 
-    #
-    # identify the training run and data source
-    #
-    'uid_data' : '57f47108-380d-4e78-aeb9-7ebccd07ec65',
-    'uid_training' : str(uuid.uuid4()),
+#
+# identify the training run and data source
+#
+uid_data = '57f47108-380d-4e78-aeb9-7ebccd07ec65'
+uid_training = str(uuid.uuid4())
+
+config = {
+    
+    'uid_data' : uid_data,
+    'uid_training' : uid_training,
 
     #
     # Do we want to use a variable learning rate?
     # If so, what value?
     #
-    'use_variable_learning_rate' : False,
+    'use_variable_learning_rate' : True,
     'learning_rate' : 0.001,
 
     #
@@ -103,7 +93,7 @@ config = {
     'validation_split' : 0.2,
     
     'regularizer_kernel_L1' : 1e-5,
-    'regularizer_kernal_L2' : 1e-4,
+    'regularizer_kernel_L2' : 1e-4,
     'regularizer_bias_L2' : 1e-4,
     'regularizer_activity_L2' : 1e-5,
     
