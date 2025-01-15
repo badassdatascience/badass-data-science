@@ -42,7 +42,7 @@ config = {
     # Do we want to use a variable learning rate?
     # If so, what value?
     #
-    'use_variable_learning_rate' : False,
+    'use_variable_learning_rate' : True,
     'learning_rate' : 0.001,
 
     #
