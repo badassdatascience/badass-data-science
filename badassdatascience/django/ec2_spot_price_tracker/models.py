@@ -29,6 +29,7 @@ class Ec2SpotPrice(models.Model):
     # Enforce uniqueness
     #
     class Meta:
+        db_table = 'ec2_spot_price_tracker_ec2_spot_price',
         constraints = [
             models.UniqueConstraint(
                 name = 'unique_timestamp_product_description_availability_zone_instance_type',
