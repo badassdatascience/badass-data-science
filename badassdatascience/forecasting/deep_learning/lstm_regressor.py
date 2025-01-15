@@ -71,8 +71,8 @@ config = {
     #
     # Neural network architecture
     #
-    'number_of_cells_per_RNN_layer_list' : [50, 20, 20, 20, 20, 20, 20, 15, 15, 15],
-    'number_of_cells_per_dense_layer_list' : [15, 15, 10],
+    'number_of_cells_per_RNN_layer_list' : [200, 200, 200, 200, 100, 100], #50, 30, 30, 30],
+    'number_of_cells_per_dense_layer_list' : [100, 100], #[30, 30, 10],
 
     #
     # Activation functions
@@ -82,7 +82,7 @@ config = {
     'final_dense_activation_function' : 'LeakyReLU',
 
     'epochs' : 200,
-    'batch_size' : 256,
+    'batch_size' : 64, #128, #256,
 
     'loss_function' : 'mse',
     'metrics_to_store' : ['mse'],
