@@ -1,5 +1,7 @@
 # Church-to-Bar Ratio per U.S. County (4th Edition)
 
+!["CBR"](church_to_bar_ratio_by_US_county_LATEST.png)
+
 The brighter the color, the higher the church-to-bar ratio. Counties missing data necessary for the computation are shown in black.
 
 ## Method
