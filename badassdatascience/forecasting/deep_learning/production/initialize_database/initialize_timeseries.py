@@ -8,13 +8,10 @@ import json
 #
 # user settings
 #
-application_root_directory = os.environ['APP_HOME']
+root_directory_application = os.environ['BDS_HOME'] + '/badassdatascience/forecasting/deep_learning'
+root_directory_django = os.environ['BDS_HOME'] + '/badassdatascience/django'
 
-# temp?
-application_root_directory += '/badassdatascience/forecasting/deep_learning/stuff'
-root_directory_django = os.environ['APP_HOME'] + '/badassdatascience/django'
-
-data_directory = application_root_directory + '/data'
+data_directory = root_directory_application + '/data'
 price_types_file = data_directory + '/price_types.json'
 intervals_file = data_directory + '/intervals.json'
 instruments_file = data_directory + '/instruments_and_margin_requirements.csv'
@@ -22,9 +19,9 @@ instruments_file = data_directory + '/instruments_and_margin_requirements.csv'
 #
 # set the path and environment
 #
-
-# temp?
-sys.path.append(root_directory_django) # + '/infrastructure')
+sys.path.append(os.environ['BDS_HOME'])
+sys.path.append(root_directory_application)
+sys.path.append(root_directory_django)
 
 os.environ['DJANGO_SETTINGS_MODULE'] = 'infrastructure.settings'
 
