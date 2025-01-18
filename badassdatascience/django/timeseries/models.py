@@ -54,15 +54,15 @@ class Candlestick(models.Model):
         indexes = [
             models.Index(
                 name = 'candlestick_index',
-                fields = ('timestamp', 'instrument', 'price_type', 'interval'),
+                fields = ['timestamp', 'instrument', 'price_type', 'interval'],
             )
         ]
 
         constraints = [
             models.UniqueConstraint(
-                name = 'unique_candlestick_elements_constraint',
-                fields = (
+                name = 'unique_candlestick_parts',
+                fields = [
                     'timestamp', 'instrument', 'price_type', 'interval',
-                ),
+                ],
             )
         ]
