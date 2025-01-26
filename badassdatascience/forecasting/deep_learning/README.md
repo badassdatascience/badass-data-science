@@ -20,3 +20,7 @@ python3 /home/emily/Desktop/projects/test/badass-data-science/badassdatascience/
 
 
 ```
+
+
+57f47108-380d-4e78-aeb9-7ebccd07ec65----6f467d3d-510d-44c5-80ab-9c23c9b6801a
+57f47108-380d-4e78-aeb9-7ebccd07ec65----798bb099-0e9a-4a21-88c9-a978d48215ea # better
