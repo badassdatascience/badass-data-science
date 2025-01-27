@@ -1,4 +1,4 @@
-#
+
 # Load useful libraries
 #
 import os
@@ -81,7 +81,7 @@ config = {
     'dense_activation_function' : 'LeakyReLU',
     'final_dense_activation_function' : 'LeakyReLU',
 
-    'epochs' : 300,
+    'epochs' : 250,
     'batch_size' : 128,
 
     'loss_function' : 'mse',
@@ -100,8 +100,8 @@ config = {
     'callbacks_dict' : {
         'ReduceLROnPlateau' : {
             'monitor' : 'val_loss',
-            'factor' : 0.97,
-            'patience' : 4,
+            'factor' : 0.9,
+            'patience' : 5,
         }
     },
 
