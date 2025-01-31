@@ -158,24 +158,24 @@ class DataPrep():
         self.verbose('Setting the NumPy random seed...')
         np.random.seed(self.config['seed_numpy'])
 
-        # # create initial Pandas dataframe
-        # self.verbose('Creating the initial Pandas dataframe...')
-        # self.make_initial_pdf()
+        # # # create initial Pandas dataframe
+        # # self.verbose('Creating the initial Pandas dataframe...')
+        # # self.make_initial_pdf()
+        # # self.verbose_DF(self.initial_pandas_df)
+
+        # # # save waypoint
+        # # self.verbose('Saving a waypoint...')
+        # # self.save_initial_pdf()
+
+        # # load instead
+        # self.verbose('Loading initial pandas dataframe...')
+        # self.load_initial_pdf()
         # self.verbose_DF(self.initial_pandas_df)
 
-        # # save waypoint
-        # self.verbose('Saving a waypoint...')
-        # self.save_initial_pdf()
-
-        # load instead
-        self.verbose('Loading initial pandas dataframe...')
-        self.load_initial_pdf()
-        self.verbose_DF(self.initial_pandas_df)
-
-        # align timestamps with Toronto's trading hours
-        self.verbose('Aligning timestamps to trading hours...')
-        self.shift_days_and_hours_as_needed()
-        self.verbose_DF(self.initial_pandas_df)
+        # # align timestamps with Toronto's trading hours
+        # self.verbose('Aligning timestamps to trading hours...')
+        # self.shift_days_and_hours_as_needed()
+        # self.verbose_DF(self.initial_pandas_df)
         
         #
         # Define UDFs
@@ -187,48 +187,99 @@ class DataPrep():
         self.udf_get_the_cosine_for_full_day = udf_normalized_spark_friendly_cosine_with_24_hour_period
         self.nan_helper = nan_helper
        
-        # We are about to do some heavy lifting:
-        self.verbose('Moving to Spark for heavy computational lifting...')
-        self.move_to_spark()
-        self.verbose_DF(self.all_possible_timestamps_spark_df)
+        # # We are about to do some heavy lifting:
+        # self.verbose('Moving to Spark for heavy computational lifting...')
+        # self.move_to_spark()
+        # self.verbose_DF(self.all_possible_timestamps_spark_df)
        
-        # this helps with interpolation and ensures timestamp gaps are dealt with properly
-        self.verbose('Differencing the timestamps...')
-        self.difference_the_timestamps()
-        self.verbose_DF(self.arrays_spark_df)
+        # # this helps with interpolation and ensures timestamp gaps are dealt with properly
+        # self.verbose('Differencing the timestamps...')
+        # self.difference_the_timestamps()
+        # self.verbose_DF(self.arrays_spark_df)
 
-        # add seasonal terms
-        self.verbose('Adding seasonal terms...')
-        self.add_seasonal_terms()
-        self.verbose_DF(self.arrays_spark_df)
+        # # add seasonal terms
+        # self.verbose('Adding seasonal terms...')
+        # self.add_seasonal_terms()
+        # self.verbose_DF(self.arrays_spark_df)
 
+
+
+        # #
+        # # TEMP
+        # #
+        # self.arrays_spark_df.write.parquet('output/proto.parquet')
+
+        #
+        # temp
+        #
+        self.arrays_spark_df = spark.read.parquet('output/proto.parquet')
+
+
+
+        
         # investigate array lengths after an aggregation
         self.investigate_array_lengths_after_aggregation()
         self.verbose_DF(self.arrays_spark_df)
-        sys.exit(0)
+
+
+
+        ######### something ############
+
+        sum_diff_df = (
+            self.arrays_spark_df
+            .select(
+                'original_date_shifted',
+                'diff_timestamp',
+            )
+            .withColumn('sum_diff_timestamp', f.expr('AGGREGATE(diff_timestamp, 0, (acc, x) -> acc + x)'))
+        )
+        self.max_sum_diff_timestamp = np.max(np.array(sum_diff_df.select('sum_diff_timestamp').collect()))
+
+        self.arrays_spark_df = (
+            self.arrays_spark_df
+            .withColumn('max_sum_diff_timestamp', f.lit(self.max_sum_diff_timestamp))
+        )
+        
+        self.verbose_DF(self.arrays_spark_df)
+
+        ######################        
+
+
+
         
 
+        
         # ensure time series aligns with timestamps (mind the gap(s)!)
         self.verbose('Ensuring the time series aligns with the timestamps (minding the gap(s)...')
         self.correct_offset()
         self.verbose_DF(self.arrays_spark_df)
 
-        #sys.exit(0)
-
-        
-        
         # we now move to NumPy to produce Keras-ready data
         self.verbose('Moving to NumPy to produce Keras-ready data...')
         self.move_to_NumPy()
 
-
-        #self.arrays_spark_df.collect(); import sys; sys.exit(0) # test
-        
-        
+       
         # interpolation and signal preparation
         self.verbose('Interpolating and signal prep...')
         self.define_signals_and_interpolate_missing_values()
 
+
+
+
+        print()
+        print(self.X_all)
+        print(self.y_forward_all)
+        print()
+        print(self.X_all.shape)
+        print(self.y_forward_all.shape)
+        
+        print()
+
+        sys.exit(0)
+
+
+
+        
         # get the "secret sauce"
         self.verbose('Adding the "secret sauce"...')
         self.MSS = secret_sauce_inator(self.X_all, self.config['number_of_secret_sauce_columns_to_use'])
@@ -451,14 +502,21 @@ class DataPrep():
     def correct_offset(self):
         self.arrays_spark_df = (
             self.arrays_spark_df
-            .withColumn('corrected_offset_price', self.udf_deal_with_offset(f.col('price'), f.col('diff_timestamp'), f.col('max_array_length')))
-            .withColumn('corrected_offset_volume', self.udf_deal_with_offset(f.col('volume'), f.col('diff_timestamp'), f.col('max_array_length')))
-            .withColumn('corrected_offset_sine_for_full_day', self.udf_deal_with_offset(f.col('sine_for_full_day'), f.col('diff_timestamp'), f.col('max_array_length')))
-            .withColumn('corrected_offset_cosine_for_full_day', self.udf_deal_with_offset(f.col('cosine_for_full_day'), f.col('diff_timestamp'), f.col('max_array_length')))
+            #.withColumn('corrected_offset_price', self.udf_deal_with_offset(f.col('price'), f.col('diff_timestamp'), f.col('max_array_length')))
+            #.withColumn('corrected_offset_volume', self.udf_deal_with_offset(f.col('volume'), f.col('diff_timestamp'), f.col('max_array_length')))
+            #.withColumn('corrected_offset_sine_for_full_day', self.udf_deal_with_offset(f.col('sine_for_full_day'), f.col('diff_timestamp'), f.col('max_array_length')))
+            #.withColumn('corrected_offset_cosine_for_full_day', self.udf_deal_with_offset(f.col('cosine_for_full_day'), f.col('diff_timestamp'), f.col('max_array_length')))
+            #.withColumn('corrected_offset_length', f.size(f.col('corrected_offset_volume')))
+
+            .withColumn('corrected_offset_price', self.udf_deal_with_offset(f.col('price'), f.col('diff_timestamp'), f.col('max_sum_diff_timestamp')))
+            .withColumn('corrected_offset_volume', self.udf_deal_with_offset(f.col('volume'), f.col('diff_timestamp'), f.col('max_sum_diff_timestamp')))
+            .withColumn('corrected_offset_sine_for_full_day', self.udf_deal_with_offset(f.col('sine_for_full_day'), f.col('diff_timestamp'), f.col('max_sum_diff_timestamp')))
+            .withColumn('corrected_offset_cosine_for_full_day', self.udf_deal_with_offset(f.col('cosine_for_full_day'), f.col('diff_timestamp'), f.col('max_sum_diff_timestamp')))
             .withColumn('corrected_offset_length', f.size(f.col('corrected_offset_volume')))
+
             .drop(
                 'price', 'volume', 'sine_for_full_day', 'cosine_for_full_day',
-                'timestamp', 'diff_timestamp', 'diff_sum', 'max_array_length'
+                'timestamp', 'diff_timestamp', 'diff_sum' #, 'max_array_length'
             )
         )
         
@@ -468,12 +526,7 @@ class DataPrep():
         # there is probably a better way to convert a 2D np.array to a 2D np.matrix:
 
         self.M_unscaled_dict = {}
-
-        print()
-        print(self.M_unscaled_dict)
-        print(self.max_array_length)  # 1444
-        print()
-        
+       
         for ci, column_name in enumerate(
                 [
                     'corrected_offset_price', 'corrected_offset_volume', 'corrected_offset_sine_for_full_day', 'corrected_offset_cosine_for_full_day'
@@ -481,7 +534,9 @@ class DataPrep():
                 ):
 
             M_pre = self.arrays_spark_df.select(column_name).toPandas().to_numpy()
-            M = np.zeros([M_pre.shape[0], self.max_array_length])
+
+            # M = np.zeros([M_pre.shape[0], self.max_array_length])
+            M = np.zeros([M_pre.shape[0], self.max_sum_diff_timestamp])
             
             for i in range(0, M.shape[0]):
                 M[i, :] = M_pre[i, 0]
@@ -531,8 +586,6 @@ class DataPrep():
 
                 nans, x = self.nan_helper(signal)
 
-                print(nans.shape, x.shape, signal.shape)
-                
                 #if nans.shape[0] < 2:
                     #print(.shape, len(signal), len(x))
                     #print()
