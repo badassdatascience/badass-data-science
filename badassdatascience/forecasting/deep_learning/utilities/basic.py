@@ -10,6 +10,14 @@ def difference_an_array(the_array, seconds_divisor):
 
 udf_difference_an_array = f.udf(difference_an_array, ArrayType(IntegerType()))
 
+# Ensuring the time series aligns with the timestamps (minding the gap(s)...      
+# Moving to NumPy to produce Keras-ready data...
+# 25/01/28 17:20:04 ERROR Executor: Exception in task 6.0 in stage 35.0 (TID 3773)
+# org.apache.spark.api.python.PythonException: Traceback (most recent call last):
+# File "/home/emily/Desktop/projects/test/badass-data-science/badassdatascience/forecasting/deep_learning/utilities/basic.py"#, line 20, in deal_with_offset
+#    items[position_column] = values_list[i]
+# IndexError: index 1725 is out of bounds for axis 0 with size 1444
+
 def deal_with_offset(values_list, diff_timestamp_list, max_array_length):
     items = np.empty([max_array_length])
     items[:] = np.nan
