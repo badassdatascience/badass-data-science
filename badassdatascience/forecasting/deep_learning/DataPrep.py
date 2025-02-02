@@ -158,25 +158,6 @@ class DataPrep():
         self.verbose('Setting the NumPy random seed...')
         np.random.seed(self.config['seed_numpy'])
 
-        # # # create initial Pandas dataframe
-        # # self.verbose('Creating the initial Pandas dataframe...')
-        # # self.make_initial_pdf()
-        # # self.verbose_DF(self.initial_pandas_df)
-
-        # # # save waypoint
-        # # self.verbose('Saving a waypoint...')
-        # # self.save_initial_pdf()
-
-        # # load instead
-        # self.verbose('Loading initial pandas dataframe...')
-        # self.load_initial_pdf()
-        # self.verbose_DF(self.initial_pandas_df)
-
-        # # align timestamps with Toronto's trading hours
-        # self.verbose('Aligning timestamps to trading hours...')
-        # self.shift_days_and_hours_as_needed()
-        # self.verbose_DF(self.initial_pandas_df)
-        
         #
         # Define UDFs
         #
@@ -186,21 +167,92 @@ class DataPrep():
         self.udf_get_the_sine_for_full_day = udf_normalized_spark_friendly_sine_with_24_hour_period
         self.udf_get_the_cosine_for_full_day = udf_normalized_spark_friendly_cosine_with_24_hour_period
         self.nan_helper = nan_helper
+        
+    def fit(self):
+        
+        # # # create initial Pandas dataframe
+        # # self.verbose('Creating the initial Pandas dataframe...')
+        # # self.make_initial_pdf()
+        # # self.verbose_DF(self.initial_pandas_df)
+
+        # # # save waypoint
+        # # self.verbose('Saving a waypoint...')
+        # # self.save_initial_pdf()
+
+
+
+        
+        # # load instead (we are in Pandas)
+        # self.verbose('Loading initial pandas dataframe...')
+        # self.load_initial_pdf()
+        # self.verbose_DF(self.initial_pandas_df)
+
+        # # align timestamps with Toronto's trading hours (we are in Pandas)
+        # self.verbose('Aligning timestamps to trading hours...')
+        # self.shift_days_and_hours_as_needed()
+        # self.verbose_DF(self.initial_pandas_df)
+
+        # #
+        # # do we need this? (clearing the null "weekday_shifted" rows)
+        # #
+        # print(len(self.initial_pandas_df.index))
+        # self.verbose('Applying the null weekday_shifted filter...')
+        # self.initial_pandas_df = (
+        #     self.initial_pandas_df
+        #     [~self.initial_pandas_df['weekday_shifted'].isna()]
+        # )
+        # self.verbose_DF(self.initial_pandas_df)
+        # print(len(self.initial_pandas_df.index))
+        
        
         # # We are about to do some heavy lifting:
         # self.verbose('Moving to Spark for heavy computational lifting...')
         # self.move_to_spark()
-        # self.verbose_DF(self.all_possible_timestamps_spark_df)
-       
+        # self.verbose_DF(self.initial_spark_df)
+          
         # # this helps with interpolation and ensures timestamp gaps are dealt with properly
         # self.verbose('Differencing the timestamps...')
         # self.difference_the_timestamps()
         # self.verbose_DF(self.arrays_spark_df)
 
+        # #
+        # # will this help?
+        # #
+        # minimum_array_size = self.config['n_forward'] + self.config['n_back'] + 2
+        # self.arrays_spark_df = (
+        #     self.arrays_spark_df
+        #     .where(
+        #         f.col('array_length') > minimum_array_size
+        #     )
+        # )
+
+
+        # ##############
+        # # (
+        # #     self
+        # #     .arrays_spark_df
+        # #     .select('array_length_diff_timestamp', 'original_date_shifted', 'array_length', 'diff_timestamp', 'array_length_diff_timestamp')
+        # #     .where(f.col('array_length_diff_timestamp') < 10)
+        # #     .show(5)
+        # # )
+
+        # # (
+        # #     self
+        # #     .arrays_spark_df
+        # #     .select('array_length_diff_timestamp', 'original_date_shifted', 'array_length', 'diff_timestamp', 'array_length_diff_timestamp')
+        # #     .where(f.col('original_date_shifted') == '2008-12-06')
+        # #     .show(10)
+        # # )
+        
+        # # ##############
+        
+        
         # # add seasonal terms
         # self.verbose('Adding seasonal terms...')
         # self.add_seasonal_terms()
         # self.verbose_DF(self.arrays_spark_df)
+
+
 
 
 
@@ -209,10 +261,17 @@ class DataPrep():
         # #
         # self.arrays_spark_df.write.parquet('output/proto.parquet')
 
+        
+
+        
         #
-        # temp
+        # temp loading from saved waypoint
         #
         self.arrays_spark_df = spark.read.parquet('output/proto.parquet')
+
+        # ensure sorting is correct
+        self.arrays_spark_df = self.arrays_spark_df.orderBy(f.col('original_date_shifted'))
+
 
 
 
@@ -222,6 +281,8 @@ class DataPrep():
         self.verbose_DF(self.arrays_spark_df)
 
 
+
+        
 
         ######### something ############
 
@@ -242,11 +303,13 @@ class DataPrep():
         
         self.verbose_DF(self.arrays_spark_df)
 
-        ######################        
-
 
 
         
+        ######################        
+
+
+    
 
         
         # ensure time series aligns with timestamps (mind the gap(s)!)
@@ -254,26 +317,32 @@ class DataPrep():
         self.correct_offset()
         self.verbose_DF(self.arrays_spark_df)
 
+        
+
+
+        
         # we now move to NumPy to produce Keras-ready data
         self.verbose('Moving to NumPy to produce Keras-ready data...')
         self.move_to_NumPy()
 
+        sys.exit(0)        
+        
        
         # interpolation and signal preparation
         self.verbose('Interpolating and signal prep...')
         self.define_signals_and_interpolate_missing_values()
 
 
-
-
         print()
         print(self.X_all)
+        #self.X_volume_all
+        #self.X_sin_all
+        #self.X_cos_all
+        print()
         print(self.y_forward_all)
         print()
-        print(self.X_all.shape)
-        print(self.y_forward_all.shape)
-        
-        print()
+
+
 
         sys.exit(0)
 
@@ -438,6 +507,9 @@ class DataPrep():
             .orderBy('timestamp')
         )
 
+        #
+        # check to see if we used this later
+        #
         self.all_possible_timestamps_spark_df = (
             self.timestamps_spark_df
             .join(
@@ -448,7 +520,6 @@ class DataPrep():
             .drop('dummy_variable')
             .orderBy('timestamp')
         )
-
 
 
     def difference_the_timestamps(self):
@@ -464,9 +535,9 @@ class DataPrep():
             )
             .orderBy('original_date_shifted')
 
-            .withColumn('array_length_price', f.size(f.col('price')))
-            .withColumn('array_length_volume', f.size(f.col('volume')))
-            .withColumn('array_length_timestamp', f.size(f.col('timestamp')))
+            .withColumn('array_length_price', f.array_size(f.col('price')))
+            .withColumn('array_length_volume', f.array_size(f.col('volume')))
+            .withColumn('array_length_timestamp', f.array_size(f.col('timestamp')))
 
             .withColumn(
                 'length_test',
@@ -483,7 +554,7 @@ class DataPrep():
             .withColumn('diff_timestamp', self.udf_difference_an_array(f.col('timestamp'), f.col('seconds_divisor')))
 
             # maybe?
-            .withColumn('array_length_diff_timestamp', f.size(f.col('diff_timestamp')))
+            .withColumn('array_length_diff_timestamp', f.array_size(f.col('diff_timestamp')))
 
             .drop('seconds_divisor')
             
@@ -500,26 +571,32 @@ class DataPrep():
         )
 
     def correct_offset(self):
+        # self.arrays_spark_df = (
+        #     self.arrays_spark_df
+        #     .withColumn('corrected_offset_price', self.udf_deal_with_offset(f.col('price'), f.col('diff_timestamp'), f.col('max_array_length')))
+        #     .withColumn('corrected_offset_volume', self.udf_deal_with_offset(f.col('volume'), f.col('diff_timestamp'), f.col('max_array_length')))
+        #     .withColumn('corrected_offset_sine_for_full_day', self.udf_deal_with_offset(f.col('sine_for_full_day'), f.col('diff_timestamp'), f.col('max_array_length')))
+        #     .withColumn('corrected_offset_cosine_for_full_day', self.udf_deal_with_offset(f.col('cosine_for_full_day'), f.col('diff_timestamp'), f.col('max_array_length')))
+        #     .withColumn('corrected_offset_length', f.size(f.col('corrected_offset_volume')))
+        #     .drop(
+        #         'price', 'volume', 'sine_for_full_day', 'cosine_for_full_day',
+        #         'timestamp', 'diff_timestamp', 'diff_sum' #, 'max_array_length'
+        #     )
+        # )
+
         self.arrays_spark_df = (
             self.arrays_spark_df
-            #.withColumn('corrected_offset_price', self.udf_deal_with_offset(f.col('price'), f.col('diff_timestamp'), f.col('max_array_length')))
-            #.withColumn('corrected_offset_volume', self.udf_deal_with_offset(f.col('volume'), f.col('diff_timestamp'), f.col('max_array_length')))
-            #.withColumn('corrected_offset_sine_for_full_day', self.udf_deal_with_offset(f.col('sine_for_full_day'), f.col('diff_timestamp'), f.col('max_array_length')))
-            #.withColumn('corrected_offset_cosine_for_full_day', self.udf_deal_with_offset(f.col('cosine_for_full_day'), f.col('diff_timestamp'), f.col('max_array_length')))
-            #.withColumn('corrected_offset_length', f.size(f.col('corrected_offset_volume')))
-
             .withColumn('corrected_offset_price', self.udf_deal_with_offset(f.col('price'), f.col('diff_timestamp'), f.col('max_sum_diff_timestamp')))
             .withColumn('corrected_offset_volume', self.udf_deal_with_offset(f.col('volume'), f.col('diff_timestamp'), f.col('max_sum_diff_timestamp')))
             .withColumn('corrected_offset_sine_for_full_day', self.udf_deal_with_offset(f.col('sine_for_full_day'), f.col('diff_timestamp'), f.col('max_sum_diff_timestamp')))
             .withColumn('corrected_offset_cosine_for_full_day', self.udf_deal_with_offset(f.col('cosine_for_full_day'), f.col('diff_timestamp'), f.col('max_sum_diff_timestamp')))
             .withColumn('corrected_offset_length', f.size(f.col('corrected_offset_volume')))
-
             .drop(
                 'price', 'volume', 'sine_for_full_day', 'cosine_for_full_day',
-                'timestamp', 'diff_timestamp', 'diff_sum' #, 'max_array_length'
+                'timestamp', 'diff_timestamp', 'diff_sum' #, 'max_sum_diff_timestamp'
             )
         )
-        
+
         
 
     def move_to_NumPy(self):
@@ -584,13 +661,34 @@ class DataPrep():
                     
                 signal = signal[0:(i + 1)]
 
+                # https://stackoverflow.com/questions/6518811/interpolate-nan-values-in-a-numpy-array
                 nans, x = self.nan_helper(signal)
+                
+                #print()
+                #print(x)
+                #print(nans)
+                #print()
 
-                #if nans.shape[0] < 2:
-                    #print(.shape, len(signal), len(x))
+                count = 0
+                try:
+                    signal[nans] = np.interp(x(nans), x(~nans), signal[~nans])
+                except Exception as e:
+                    count += 1
+                
                     #print()
-                signal[nans] = np.interp(x(nans), x(~nans), signal[~nans])
+                    #print(x)
+                    #print(nans)
+                    #print(~nans)
+                    #print()
+                    #print(e)
+                    #print()
+                    #sys.exit(0)
 
+                print(count)
+                sys.exit(0)
+                
+
+                
                 for i in range(
                     self.config['n_back'],
                     len(signal) - self.config['n_back'] - self.config['n_forward']
@@ -778,3 +876,4 @@ if __name__ == '__main__':
     )    
 
     data_prep_root = DataPrep(spark, **config)
+    data_prep_root.fit()
