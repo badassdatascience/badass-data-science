@@ -71,7 +71,7 @@ config = {
     #
     # Neural network architecture
     #
-    'number_of_cells_per_RNN_layer_list' : [200, 200, 200, 200, 200, 200, 200], #50, 30, 30, 30],
+    'number_of_cells_per_RNN_layer_list' : [300, 300, 200, 200, 200, 200, 200, 200], #50, 30, 30, 30],
     'number_of_cells_per_dense_layer_list' : [200, 200, 200], #[30, 30, 10],
 
     #
@@ -81,8 +81,8 @@ config = {
     'dense_activation_function' : 'LeakyReLU',
     'final_dense_activation_function' : 'LeakyReLU',
 
-    'epochs' : 125,
-    'batch_size' : 128,
+    'epochs' : 200,
+    'batch_size' : 256,
 
     'loss_function' : 'mse',
     'metrics_to_store' : ['mse'],
@@ -101,7 +101,7 @@ config = {
         'ReduceLROnPlateau' : {
             'monitor' : 'val_loss',
             'factor' : 0.9,
-            'patience' : 5,
+            'patience' : 4,
         }
     },
 
@@ -135,7 +135,7 @@ with open(config['data_source_path'] + '/' + uid_data + '_train_val_test_dict.pi
     #QA
     print(train_val_test_dict['train']['M'].shape)
     print(train_val_test_dict['train']['y'].shape)
-
+    
 M = train_val_test_dict['train']['M']
 y = train_val_test_dict['train']['y']
 
