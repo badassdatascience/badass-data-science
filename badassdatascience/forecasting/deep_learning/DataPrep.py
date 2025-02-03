@@ -405,19 +405,9 @@ class DataPrep():
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
+    ###############
+    #   Methods   #
+    ###############
         
     #
     # We start in Pandas

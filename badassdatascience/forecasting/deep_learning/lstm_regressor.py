@@ -30,7 +30,7 @@ from numba import cuda
 #
 # identify the training run and data source
 #
-uid_data = '053ed580-bcab-45d1-9872-eae70bb66059'
+uid_data = '8dcbb12b-d90e-4ae6-a597-2dffb0c4c3a0'
 uid_training = str(uuid.uuid4())
 
 temp_directory = '/home/emily/Desktop/projects/test/badass-data-science/badassdatascience/forecasting/deep_learning'
@@ -140,9 +140,6 @@ with open(config['data_source_path'] + '/' + uid_data + '_train_val_test_dict.pi
     
 M = train_val_test_dict['train']['M']
 y = train_val_test_dict['train']['y_forward']
-
-
-
 
 #
 # calculate input and output matrix/array shapes
