@@ -274,8 +274,8 @@ class DataPrep():
         #
         # temp reduce size
         #
-        self.arrays_spark_df = self.arrays_spark_df.limit(10)
-        self.verbose_DF(self.arrays_spark_df)
+        #self.arrays_spark_df = self.arrays_spark_df.limit(10)
+        #self.verbose_DF(self.arrays_spark_df)
 
 
 
