@@ -30,8 +30,10 @@ from numba import cuda
 #
 # identify the training run and data source
 #
-uid_data = '57f47108-380d-4e78-aeb9-7ebccd07ec65'
+uid_data = '053ed580-bcab-45d1-9872-eae70bb66059'
 uid_training = str(uuid.uuid4())
+
+temp_directory = '/home/emily/Desktop/projects/test/badass-data-science/badassdatascience/forecasting/deep_learning'
 
 config = {
     
@@ -105,13 +107,13 @@ config = {
         }
     },
 
-    'data_source_path' : os.environ['APP_HOME'] + '/output',
+    'data_source_path' : temp_directory + '/output',
     
-    'json_config_output_path' : os.environ['APP_HOME'] + '/output/' + uid_data + '----' + uid_training + '_regressor_config.json',
-    'checkpoint_file_path' : os.environ['APP_HOME'] + '/output/' + uid_data + '----' + uid_training + '_regressor_model_checkpoints.keras',
-    'model_json_path' : os.environ['APP_HOME'] + '/output/' + uid_data + '----' + uid_training + '_model_regressor.json',
-    'model_final_weights_path' : os.environ['APP_HOME'] + '/output/' + uid_data + '----' + uid_training + '_final_weights_regressor.pickled',
-    'model_final_history_path' : os.environ['APP_HOME'] + '/output/' + uid_data + '----' + uid_training + '_final_history_regressor.pickled',
+    'json_config_output_path' : temp_directory + '/output/' + uid_data + '----' + uid_training + '_regressor_config.json',
+    'checkpoint_file_path' : temp_directory + '/output/' + uid_data + '----' + uid_training + '_regressor_model_checkpoints.keras',
+    'model_json_path' : temp_directory + '/output/' + uid_data + '----' + uid_training + '_model_regressor.json',
+    'model_final_weights_path' : temp_directory + '/output/' + uid_data + '----' + uid_training + '_final_weights_regressor.pickled',
+    'model_final_history_path' : temp_directory + '/output/' + uid_data + '----' + uid_training + '_final_history_regressor.pickled',
 }
 
 #
@@ -137,7 +139,10 @@ with open(config['data_source_path'] + '/' + uid_data + '_train_val_test_dict.pi
     print(train_val_test_dict['train']['y'].shape)
     
 M = train_val_test_dict['train']['M']
-y = train_val_test_dict['train']['y']
+y = train_val_test_dict['train']['y_forward']
+
+
+
 
 #
 # calculate input and output matrix/array shapes
