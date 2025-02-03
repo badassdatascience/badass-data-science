@@ -3,7 +3,6 @@
 # Why aren't the seasonal functions output values between -1 and 1?
 # Why is 1 added for max in the aggregation ?
 
-
 #
 # Load useful "system" libraries
 #
@@ -47,15 +46,14 @@ from utilities.seasonal_calculations import udf_normalized_spark_friendly_cosine
 
 from secret_sauce.secret_sauce import secret_sauce_inator
 
-
-
-
 #
 # Set configuration (hard-coded for now...)
 #
 config = {
     'verbose' : True,
+    'reduce_size_for_debugging' : False,
 
+    
     'price_type_name' : 'mid',
     'instrument_name' : 'EUR/USD',
     'interval_name' : 'Minute',
@@ -65,7 +63,6 @@ config = {
     'output_directory' : os.environ['APP_HOME'] + '/output',  # maybe make APP_HOME part of the class definition
     'shifted_weekday_lookup_table_filename' : 'df_weekday_shift_lookup_table.csv',  # fix this directory structure
     'seconds_divisor' : 60, 
-    #'diff_sum_cutoff' : 1000, # do we use this?
 
     'n_forward' : 15,
     'n_back' : 120,
@@ -75,10 +72,6 @@ config = {
     'modulus_integer' : 30,
     
     'number_of_secret_sauce_columns_to_use' : 1,
-    
-    #'column_names_list' : ['corrected_offset_price', 'corrected_offset_volume'], # do we need this?
-
-    #'run_qa' : False,  # where is this used?
     
     'seed_numpy' : 54,
 
@@ -90,6 +83,9 @@ config = {
 
     'reduce_vector_sizes' : True,
     
+    #
+    # This probably needs to be moved outside the config dictionary
+    #
     'spark_configuration' : SparkConf().setAll(
         [
             ('spark.executor.memory', '15g'),
@@ -102,6 +98,33 @@ config = {
 }
 
 
+#
+# Define some logging functions
+#
+# These should go in a utilities module in the near future
+#
+# Probably should use a formal logging system than an included function
+#
+def verbose(message):
+    print()
+    print(message)
+    print()
+
+def verbose_DF(df, n = 5):
+    print()
+    print(type(df))
+    print()
+    if str(type(df)).find('pyspark.sql.dataframe.DataFrame') >= 0:
+        df.show(n)
+    elif str(type(df)).find('pandas.core.frame.DataFrame') >= 0:
+        print(df.head(n))
+    else:
+        # probably should throw and exception
+        print('Data type not recognized.')
+    print()
+
+
+
 
 
 #####################################
@@ -110,36 +133,6 @@ config = {
 
 class DataPrep():
 
-
-
-
-    
-    # Probably should use a formal logging system than an included function
-    def verbose(self, message):
-        if self.config['verbose']:
-            print()
-            print(message)
-            print()
-
-    def verbose_DF(self, df, n = 5):
-        if self.config['verbose']:
-            print()
-            print(type(df))
-            print()
-            if str(type(df)).find('pyspark.sql.dataframe.DataFrame') >= 0:
-                df.show(n)
-            if str(type(df)).find('pandas.core.frame.DataFrame') >= 0:
-                print(df.head(n))
-            print()
-            
-
-
-
-
-
-
-
-
     # Constructor
     def __init__(self, spark, **kwargs):
 
@@ -147,21 +140,21 @@ class DataPrep():
         self.config = kwargs
         
         # get a distinct UUID for this data preparation run
-        self.verbose('Assigning UUID...')
+        verbose(self.config['verbose'], 'Assigning UUID...')
         self.uuid = str(uuid.uuid4())
 
         # connect to Spark
-        self.verbose('Connecting to Spark...')
+        verbose(self.config['verbose'], 'Connecting to Spark...')
         self.spark = spark
 
         # random seed for numpy
-        self.verbose('Setting the NumPy random seed...')
+        vebose(self.config['verbose'], 'Setting the NumPy random seed...')
         np.random.seed(self.config['seed_numpy'])
 
         #
         # Define UDFs
         #
-        self.verbose('Defining UDFs...')
+#        self.verbose('Defining UDFs...')
         self.udf_difference_an_array = udf_difference_an_array
         self.udf_deal_with_offset = udf_deal_with_offset
         self.udf_get_the_sine_for_full_day = udf_normalized_spark_friendly_sine_with_24_hour_period
@@ -269,32 +262,45 @@ class DataPrep():
         #
         self.arrays_spark_df = spark.read.parquet('output/proto.parquet')
 
+        #
+        # Ensure sorting is correct after the data load
+        #
+        # Even if we don't load the Spark DF from a saved waypoint,
+        # there is no harm in sorting it again anyway:
+        #
+        self.arrays_spark_df = self.arrays_spark_df.orderBy(f.col('original_date_shifted'))
+
+        #
+        # Optionally reduce the Spark DataFrame's size
+        # to assist debugging
+        #
+        if self.config['reduce_size_for_debugging']:
+            self.arrays_spark_df = self.arrays_spark_df.limit(10)
+            #self.verbose_DF(self.arrays_spark_df)
+        
+        
 
         
         #
-        # temp reduce size
+        # Investigate array lengths after an aggregation
         #
-        #self.arrays_spark_df = self.arrays_spark_df.limit(10)
+        # This function is definitely for QA; but I can't remember
+        # if I alse need this in production. Will investigate
+        # after other issues with this code are resolved:
+        #
+        #self.verbose('Investigating array lengths after an aggregation...')
+        self.investigate_array_lengths_after_aggregation()
         #self.verbose_DF(self.arrays_spark_df)
 
 
-
-        
-        
-        # ensure sorting is correct
-        self.arrays_spark_df = self.arrays_spark_df.orderBy(f.col('original_date_shifted'))
-
-        
-        # investigate array lengths after an aggregation
-        self.verbose('Investigating array lengths after an aggregation...')
-        self.investigate_array_lengths_after_aggregation()
-        self.verbose_DF(self.arrays_spark_df)
-
-
         
 
-        ######### something ############
-
+        #
+        # This was implemented to assist array sum debugging. Not sure
+        # we need it anymore.
+        #
+        # If I decide to keep it, I'll move this into a method below.
+        #
         sum_diff_df = (
             self.arrays_spark_df
             .select(
@@ -310,7 +316,7 @@ class DataPrep():
             .withColumn('max_sum_diff_timestamp', f.lit(self.max_sum_diff_timestamp))
         )
         
-        self.verbose_DF(self.arrays_spark_df)
+        #self.verbose_DF(self.arrays_spark_df)
 
 
 
@@ -320,63 +326,79 @@ class DataPrep():
 
     
 
-        
-        # ensure time series aligns with timestamps (mind the gap(s)!)
-        self.verbose('Ensuring the time series aligns with the timestamps (minding the gap(s)...')
+        #
+        # Ensure time series aligns with timestamps (mind the gap(s)!)
+        #
+        #self.verbose('Ensuring the time series aligns with the timestamps (minding the gap(s)...')
         self.correct_offset()
-        self.verbose_DF(self.arrays_spark_df)
-
+        #self.verbose_DF(self.arrays_spark_df)
         
-
-
-        
-        # we now move to NumPy to produce Keras-ready data
-        self.verbose('Moving to NumPy to produce Keras-ready data...')
+        #
+        # We now move to NumPy to produce Keras-ready data...
+        #
+        #self.verbose('Moving to NumPy to produce Keras-ready data...')
         self.move_to_NumPy()
-
-
         
         #
         # interpolation and signal preparation
         #
-        self.verbose('Interpolating and signal prep...')
+        #self.verbose('Interpolating and signal prep...')
         self.define_signals_and_interpolate_missing_values()
 
-
-        
+        #
         # get the "secret sauce"
-        self.verbose('Adding the "secret sauce"...')
+        #
+        #self.verbose('Adding the "secret sauce"...')
         self.MSS = secret_sauce_inator(self.X_all, self.config['number_of_secret_sauce_columns_to_use'])
 
+        #
         # scale everything
-        self.verbose('Scaling everything...')
+        #
+        #self.verbose('Scaling everything...')
         self.scaled_dict = {}
         self.scale_it()
-
-
-
         
+        #
         # shuffle (optional)
-        self.verbose('Shuffling...')
+        #
+        # The argument for shuffling is that each "n_back" length
+        # time series is relatively separate from its neighors, as
+        # enforced by the "n_step" value in the configuration.
+        #
+        # And also because each "n_back" sized block is scaled using
+        # its own values and not global ones.
+        #
+        #self.verbose('Shuffling...')
         if self.config['shuffle_it']:
             self.shuffle_it()
 
+        #
         # Assemble "final" Keras-friendly data structure
-        self.verbose('Assembling "final" Keras-friendly data structure...')
+        #
+        #self.verbose('Assembling "final" Keras-friendly data structure...')
         self.assemble_final_structure()
 
+        #
         # Reduce the number of rows in dataset (optional)
-        self.verbose('Optionally reducing the row count...')
+        #
+        #self.verbose('Optionally reducing the row count...')
         self.reduce_data_size()
 
-        # divide into training, validation, and test sets
-        self.verbose('Dividing into training, validation, and test sets...')
+        #
+        # Divide into training, validation, and test sets
+        #
+        #self.verbose('Dividing into training, validation, and test sets...')
         self.get_train_val_test()
 
-        # save final data preparation for downstream deep learning
-        self.verbose('Saving final data preparation...')
+        #
+        # Save final data preparation for downstream deep learning
+        #
+        #self.verbose('Saving final data preparation...')
         self.save_final_dictionary()
 
+        #
+        # Print the UUID for convenience
+        #
         print()
         print(self.uuid)
         print()
