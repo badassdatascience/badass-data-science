@@ -272,11 +272,9 @@ class DataPrep():
         # ensure sorting is correct
         self.arrays_spark_df = self.arrays_spark_df.orderBy(f.col('original_date_shifted'))
 
-
-
-
         
         # investigate array lengths after an aggregation
+        self.verbose('Investigating array lengths after an aggregation...')
         self.investigate_array_lengths_after_aggregation()
         self.verbose_DF(self.arrays_spark_df)
 
@@ -325,26 +323,13 @@ class DataPrep():
         self.verbose('Moving to NumPy to produce Keras-ready data...')
         self.move_to_NumPy()
 
-        sys.exit(0)        
+
         
        
         # interpolation and signal preparation
         self.verbose('Interpolating and signal prep...')
         self.define_signals_and_interpolate_missing_values()
 
-
-        print()
-        print(self.X_all)
-        #self.X_volume_all
-        #self.X_sin_all
-        #self.X_cos_all
-        print()
-        print(self.y_forward_all)
-        print()
-
-
-
-        sys.exit(0)
 
 
 
@@ -663,32 +648,9 @@ class DataPrep():
 
                 # https://stackoverflow.com/questions/6518811/interpolate-nan-values-in-a-numpy-array
                 nans, x = self.nan_helper(signal)
-                
-                #print()
-                #print(x)
-                #print(nans)
-                #print()
-
-                count = 0
-                try:
-                    signal[nans] = np.interp(x(nans), x(~nans), signal[~nans])
-                except Exception as e:
-                    count += 1
-                
-                    #print()
-                    #print(x)
-                    #print(nans)
-                    #print(~nans)
-                    #print()
-                    #print(e)
-                    #print()
-                    #sys.exit(0)
-
-                print(count)
-                sys.exit(0)
-                
-
-                
+                                
+                signal[nans] = np.interp(x(nans), x(~nans), signal[~nans])
+                                
                 for i in range(
                     self.config['n_back'],
                     len(signal) - self.config['n_back'] - self.config['n_forward']
