@@ -269,6 +269,18 @@ class DataPrep():
         #
         self.arrays_spark_df = spark.read.parquet('output/proto.parquet')
 
+
+        
+        #
+        # temp reduce size
+        #
+        self.arrays_spark_df = self.arrays_spark_df.limit(5)
+        self.verbose_DF(self.arrays_spark_df)
+
+
+
+        
+        
         # ensure sorting is correct
         self.arrays_spark_df = self.arrays_spark_df.orderBy(f.col('original_date_shifted'))
 
@@ -277,7 +289,6 @@ class DataPrep():
         self.verbose('Investigating array lengths after an aggregation...')
         self.investigate_array_lengths_after_aggregation()
         self.verbose_DF(self.arrays_spark_df)
-
 
 
         
@@ -325,12 +336,11 @@ class DataPrep():
 
 
         
-       
+        #
         # interpolation and signal preparation
+        #
         self.verbose('Interpolating and signal prep...')
         self.define_signals_and_interpolate_missing_values()
-
-
 
 
         
@@ -343,6 +353,9 @@ class DataPrep():
         self.scaled_dict = {}
         self.scale_it()
 
+
+
+        
         # shuffle (optional)
         self.verbose('Shuffling...')
         if self.config['shuffle_it']:
@@ -360,9 +373,13 @@ class DataPrep():
         self.verbose('Dividing into training, validation, and test sets...')
         self.get_train_val_test()
 
+        # save final data preparation for downstream deep learning
+        self.verbose('Saving final data preparation...')
+        self.save_final_dictionary()
 
-
-
+        print()
+        print(self.uuid)
+        print()
 
 
 
@@ -664,7 +681,7 @@ class DataPrep():
                     the_median = np.median(forward)
         
                     X_list[signal_name].append(back)
-                    y_list[signal_name].append([the_min, the_mean, the_median, the_max])
+                    y_list[signal_name].append([the_min, the_max]) # the_mean, the_median])
                     y_full_list[signal_name].append(forward)
 
         self.X_all = np.array(X_list['corrected_offset_price'])
@@ -683,23 +700,37 @@ class DataPrep():
                 self.X_all,
                 self.X_volume_all,
                 self.MSS,
-                self.y_forward_all,
+                #self.y_forward_all,
             ], [
                 'X_all_scaled',
                 'X_volume_all_scaled',
                 'MSS_all_scaled',
-                'y_forward_all',
+                #'y_forward_all',
             ]
         ):
-       
+
+            #print()
+            #qqq = np.mean(var, axis=1)
+            #print(qqq)
+            #print(qqq.shape)
+            #print()
+            #sys.exit(0)
+            
             M = np.zeros(the_shape)
             for q in range(0, the_shape[-1]):
                 M[:, q] = np.mean(var, axis=1)    
-
+                
             S = np.zeros(the_shape)
             for q in range(0, the_shape[-1]):
                 S[:, q] = np.std(var, axis=1)    
 
+            #print()
+            #print(M.shape)
+            #print(S.shape)
+            #print()
+            #sys.exit(0)
+
+                
             try:
                 self.scaled_dict[name] = (var - M) / S
             except:
@@ -708,21 +739,44 @@ class DataPrep():
                 #print('Whoa')
                 #print()
 
+            print()
+            print(self.scaled_dict['X_all_scaled'])
+            print(self.scaled_dict['X_all_scaled'].shape)
+            print()
+            
             # so we can undo the transformation later
+            # not sure this calculation is correct
             self.scaled_dict[name + '_mean'] = M[:, 0:self.config['n_forward']]
             self.scaled_dict[name + '_std'] = S[:, 0:self.config['n_forward']]
 
             ## scale the y values in the same way as the X values (price) are scaled
+            # and get rid of the hard-coded indices
             if name == 'X_all_scaled':
-
                 self.scaled_dict['y_all_scaled'] = (self.y_all - M[:, 0:2]) / S[:, 0:2]
-                #print(y_all_scaled.shape)
-                #sys.exit(0)
+
+                # iii = 10
+                # print()
+                # print(self.X_all[iii, :])
+                # print(self.X_all[iii, :].shape)
+                # print(np.mean(self.X_all[iii, :]))
+                # print(M[iii, 0:(self.config['n_forward'])])
+                # print(M[iii, 0:(self.config['n_forward'])].shape)
+                # sys.exit(0)
                 
                 self.scaled_dict['y_forward_all_scaled'] = (
                     (self.y_forward_all - M[:, 0:(self.config['n_forward'])]) / S[:, 0:(self.config['n_forward'])]
                 )
-                    
+
+
+                
+                
+        # print()
+        # print(self.scaled_dict['y_forward_all_scaled'])
+        # print(self.scaled_dict['y_forward_all_scaled'].shape)
+        # print()
+        # sys.exit(0)
+
+                
     #
     # shuffle (optional)
     #
@@ -790,6 +844,12 @@ class DataPrep():
 
         self.M_after_modulus_operation = self.M[self.indices_modulus_selected, :, :]
         self.y_after_modulus_operation = self.scaled_dict['y_all_scaled'][self.indices_modulus_selected, :]
+        self.y_forward_after_modulus_operation = self.scaled_dict['y_forward_all_scaled'][self.indices_modulus_selected, :]
+
+        #print()
+        #print(self.y_forward_after_modulus_operation)
+        #print(self.y_forward_after_modulus_operation.shape)
+        #print()
 
     #
     # Divide content into training, validation, and test sets
@@ -806,6 +866,7 @@ class DataPrep():
                 
                 'M' : self.M_after_modulus_operation[position:(position + n), :, :],
                 'y' : self.y_after_modulus_operation[position:(position + n), :],
+                'y_forward' : self.y_forward_after_modulus_operation[position:(position + n), :],
                 'n' : n,
                 'position' : position,
             }
@@ -823,6 +884,13 @@ class DataPrep():
             .withColumn('max_array_length', f.lit(self.max_array_length))
         )
 
+    # save final dictionary
+    def save_final_dictionary(self):
+        # fix this path
+        filepath = os.environ['BDS_HOME'] + '/badassdatascience/forecasting/deep_learning/output/' + self.uuid + '_train_val_test_dict.pickled'
+        
+        with open(filepath, 'wb') as fff:
+            pickle.dump(self.train_val_test_dict, fff)
     
 #
 # main()
