@@ -274,7 +274,7 @@ class DataPrep():
         #
         # temp reduce size
         #
-        self.arrays_spark_df = self.arrays_spark_df.limit(5)
+        self.arrays_spark_df = self.arrays_spark_df.limit(10)
         self.verbose_DF(self.arrays_spark_df)
 
 
@@ -797,7 +797,8 @@ class DataPrep():
         self.y_all = self.y_all[indices]
         self.y_forward_all = self.y_forward_all[indices]
         self.scaled_dict['y_all_scaled'] = self.scaled_dict['y_all_scaled'][indices, :]
-    
+        self.scaled_dict['y_forward_all_scaled'] = self.scaled_dict['y_forward_all_scaled'][indices, :]
+        
         self.scaled_dict['X_all_scaled'] = self.scaled_dict['X_all_scaled'][indices, :]
         self.scaled_dict['X_all_scaled_mean'] = self.scaled_dict['X_all_scaled_mean'][indices, :]
         self.scaled_dict['X_all_scaled_std'] = self.scaled_dict['X_all_scaled_std'][indices, :]
