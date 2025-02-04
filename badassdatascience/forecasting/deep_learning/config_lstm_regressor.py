@@ -3,7 +3,7 @@
 #
 # Perhaps this should be a command line argument.
 #
-uid_data = '8dcbb12b-d90e-4ae6-a597-2dffb0c4c3a0'
+uid_data = '9e65a6e5-7926-422e-bbd0-3728e0dfe6b3'
 
 #
 # load useful modules
