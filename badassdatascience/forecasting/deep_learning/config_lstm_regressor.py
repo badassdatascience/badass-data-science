@@ -1,11 +1,30 @@
 
 #
+# load useful modules
+#
+import uuid
+
+#
+#
+#
+uid_training = str(uuid.uuid4())
+
+
+
+#
 # user settings
 #
+uid_data = '8dcbb12b-d90e-4ae6-a597-2dffb0c4c3a0'
+
 temp_directory = '/home/emily/Desktop/projects/test/badass-data-science/badassdatascience/forecasting/deep_learning'
 
 config = {
-    
+
+    'uid_data' : uid_data,
+    'uid_training' : uid_training,
+
+    'data_source_path' : temp_directory + '/output',
+           
     #
     # Do we want to use a variable learning rate?
     # If so, what value?
@@ -71,15 +90,10 @@ config = {
             'factor' : 0.9,
             'patience' : 4,
         }
-    },
-
-    'data_source_path' : temp_directory + '/output',
+    }
 }
 
-config['uid_data'] = uid_data
-config['uid_training' = str(uuid.uuid4())
-
-config['json_config_output_path'] = temp_directory + '/output/' + uid_data + '----' + uid_training + '_regressor_config.json'
+config['json_config_output_path'] = temp_directory + '/output/' + uid_data + '----' + uid_training + '_lstm_regressor_config.json'
 
 config['checkpoint_file_path'] = temp_directory + '/output/' + uid_data + '----' + uid_training + '_regressor_model_checkpoints.keras'
        
