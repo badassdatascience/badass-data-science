@@ -64,8 +64,13 @@ with open(config['data_source_path'] + '/' + uid_data + '_train_val_test_dict.pi
 # I'll investigate this matter further once my current model
 # run is complete.
 #
+# Investigated, and implemented "validation_data = (M_val, y_val)"
+# in model fit call. If it works, I will remove this comment.
+#
 M = train_val_test_dict['train']['M']
 y = train_val_test_dict['train']['y_forward']
+M_val = train_val_test_dict['val']['M']
+y_val = train_val_test_dict['val']['y_forward']
 
 #
 # calculate input and output matrix/array shapes
@@ -208,7 +213,7 @@ def compile_generic_regressor(model, **config):
 #
 # fit the generic Keras LSTM classifer given above
 #
-def fit_generic_regressor(model, train_X, train_y, **config):
+def fit_generic_regressor(model, train_X, train_y, val_X, val_y, **config):
 
     #
     # set callbacks list
@@ -230,7 +235,7 @@ def fit_generic_regressor(model, train_X, train_y, **config):
         history = model.fit(
             train_X,
             train_y,
-            validation_split = config['validation_split'],
+            validation_data = (val_X, val_y),
             epochs = config['epochs'],
             batch_size = config['batch_size'],
             callbacks = callbacks_list,
@@ -239,7 +244,7 @@ def fit_generic_regressor(model, train_X, train_y, **config):
         history = model.fit(
             train_X,
             train_y,
-            validation_split = config['validation_split'],
+            validation_data = (val_X, val_y),
             epochs = config['epochs'],
             batch_size = config['batch_size'],
         )
@@ -275,6 +280,8 @@ history = fit_generic_regressor(
     model,
     M,
     y,
+    M_val,
+    y_val,
     **config,
 )
 

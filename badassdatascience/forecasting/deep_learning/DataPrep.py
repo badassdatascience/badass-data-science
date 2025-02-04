@@ -140,15 +140,15 @@ class DataPrep():
         self.config = kwargs
         
         # get a distinct UUID for this data preparation run
-        verbose(self.config['verbose'], 'Assigning UUID...')
+        #verbose(self.config['verbose'], 'Assigning UUID...')
         self.uuid = str(uuid.uuid4())
 
         # connect to Spark
-        verbose(self.config['verbose'], 'Connecting to Spark...')
+        #verbose(self.config['verbose'], 'Connecting to Spark...')
         self.spark = spark
 
         # random seed for numpy
-        vebose(self.config['verbose'], 'Setting the NumPy random seed...')
+        #verbose(self.config['verbose'], 'Setting the NumPy random seed...')
         np.random.seed(self.config['seed_numpy'])
 
         #
@@ -711,12 +711,12 @@ class DataPrep():
             [
                 self.X_all,
                 self.X_volume_all,
-                self.MSS,
+                #self.MSS,
                 #self.y_forward_all,
             ], [
                 'X_all_scaled',
                 'X_volume_all_scaled',
-                'MSS_all_scaled',
+                #'MSS_all_scaled',
                 #'y_forward_all',
             ]
         ):
@@ -819,9 +819,9 @@ class DataPrep():
         self.scaled_dict['X_volume_all_scaled_mean'] = self.scaled_dict['X_volume_all_scaled_mean'][indices, :]
         self.scaled_dict['X_volume_all_scaled_std'] = self.scaled_dict['X_volume_all_scaled_std'][indices, :]
     
-        self.scaled_dict['MSS_all_scaled'] = self.scaled_dict['MSS_all_scaled'][indices, :]
-        self.scaled_dict['MSS_all_scaled_mean'] = self.scaled_dict['MSS_all_scaled_mean'][indices, :]
-        self.scaled_dict['MSS_all_scaled_std'] = self.scaled_dict['MSS_all_scaled_std'][indices, :]
+        #self.scaled_dict['MSS_all_scaled'] = self.scaled_dict['MSS_all_scaled'][indices, :]
+        #self.scaled_dict['MSS_all_scaled_mean'] = self.scaled_dict['MSS_all_scaled_mean'][indices, :]
+        #self.scaled_dict['MSS_all_scaled_std'] = self.scaled_dict['MSS_all_scaled_std'][indices, :]
 
     #
     # but we still have to figure out (SOMETHING I FORGOT)
@@ -829,7 +829,7 @@ class DataPrep():
     def assemble_final_structure(self):
         
         # figure out a way to compute this rather than hard code it
-        n_features = 5
+        n_features = 4
         
         n_samples = self.X_all.shape[0]
         n_timepoints = self.config['n_back']
@@ -839,10 +839,15 @@ class DataPrep():
         for i in range(0, n_samples):
             self.M[i, :, 0] = self.scaled_dict['X_all_scaled'][i, :]
             self.M[i, :, 1] = self.scaled_dict['X_volume_all_scaled'][i, :]
-            self.M[i, :, 2] = self.scaled_dict['MSS_all_scaled'][i, :]
-            self.M[i, :, 3] = self.X_sin_all[i, :]
-            self.M[i, :, 4] = self.X_cos_all[i, :]
 
+            #self.M[i, :, 2] = self.scaled_dict['MSS_all_scaled'][i, :]
+            #self.M[i, :, 3] = self.X_sin_all[i, :]
+            #self.M[i, :, 4] = self.X_cos_all[i, :]
+
+            self.M[i, :, 2] = self.X_sin_all[i, :]
+            self.M[i, :, 3] = self.X_cos_all[i, :]
+
+            
     #
     # reduce data set size
     #
