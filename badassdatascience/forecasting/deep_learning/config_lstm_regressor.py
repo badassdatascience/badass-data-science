@@ -1,3 +1,9 @@
+#
+# Specify the data source ID to use in this training run
+#
+# Perhaps this should be a command line argument.
+#
+uid_data = '8dcbb12b-d90e-4ae6-a597-2dffb0c4c3a0'
 
 #
 # load useful modules
@@ -5,17 +11,15 @@
 import uuid
 
 #
-#
+# create a training run ID
 #
 uid_training = str(uuid.uuid4())
-
-
 
 #
 # user settings
 #
-uid_data = '8dcbb12b-d90e-4ae6-a597-2dffb0c4c3a0'
-
+# CRUDE:  Improve on this design... later
+#
 temp_directory = '/home/emily/Desktop/projects/test/badass-data-science/badassdatascience/forecasting/deep_learning'
 
 config = {
