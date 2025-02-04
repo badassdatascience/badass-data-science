@@ -1,3 +1,7 @@
+"""
+This code runs the LSTM regressor prepared by DataPrep.py:
+"""
+
 #
 # Load useful libraries
 #
@@ -26,13 +30,6 @@ from numba import cuda
 #
 from config_lstm_regressor import *
 
-
-
-
-
-
-
-
 #
 # Reset device
 #
@@ -51,10 +48,22 @@ set_seed(config['tensorflow_seed'])
 with open(config['data_source_path'] + '/' + uid_data + '_train_val_test_dict.pickled', 'rb') as f:
     train_val_test_dict = pickle.load(f)
 
-    #QA
-    print(train_val_test_dict['train']['M'].shape)
-    print(train_val_test_dict['train']['y'].shape)
-    
+#
+# the "train_val_test_dict" also contains this information
+# for validation using the "val" key, but we are not using
+# it here. Rather we are using "validation_split" in the
+# "fit_generic_regressor" function to pull validation data
+# from the content under the "train" key.
+#
+# It might be better to explicitly require the
+# "train_val_test_dict['val']" data, or to simply append
+# the val content to "M" and "y" below. The former allows
+# more precise control over the temporal order of the
+# training and validation sets.
+#
+# I'll investigate this matter further once my current model
+# run is complete.
+#
 M = train_val_test_dict['train']['M']
 y = train_val_test_dict['train']['y_forward']
 
@@ -104,8 +113,6 @@ def build_generic_LSTM_regressor(**config):
                 )
             )
                       
-        # EW
-
         if config['lstm_activation_function'] == 'LeakyReLU':
             model.add(layers.LeakyReLU())
         else:
@@ -123,7 +130,7 @@ def build_generic_LSTM_regressor(**config):
     model.add(layers.Flatten())
 
     #
-    # first batch normalization
+    # insert another batch normalization layer between the flatten and dense layers
     #
     if config['use_batch_normalization_layers']:
         model.add(layers.BatchNormalization(momentum = config['batch_normalization_momentum']))
@@ -147,7 +154,6 @@ def build_generic_LSTM_regressor(**config):
             )
         )
 
-        # EW
         if config['dense_activation_function'] == 'LeakyReLU':
             model.add(layers.LeakyReLU())
         else:
@@ -176,8 +182,6 @@ def build_generic_LSTM_regressor(**config):
         )
     )
 
-                  
-    # EW
     if config['final_dense_activation_function'] == 'LeakyReLU':
         model.add(layers.LeakyReLU())
     else:
@@ -194,7 +198,7 @@ def build_generic_LSTM_regressor(**config):
 #
 # compile the generic Keras LSTM regressor given above
 #
-def compile_generic_regressor(model, **config): #loss = 'mse', metrics = ['mse']):
+def compile_generic_regressor(model, **config):
     model.compile(
         optimizer = Adam(learning_rate = config['learning_rate']),
         loss = config['loss_function'],
@@ -221,11 +225,6 @@ def fit_generic_regressor(model, train_X, train_y, **config):
             save_best_only = config['model_checkpoint_save_best_only'],
         ),
     ]
-
-    print()
-    print(train_X.shape)
-    print(train_y.shape)
-    print()
 
     if config['use_variable_learning_rate']:
         history = model.fit(
@@ -291,7 +290,7 @@ with open(config['model_final_history_path'], 'wb') as f:
     pickle.dump(history.history, f)
 
 #
-# display unique ID
+# display unique data/training ID upon completion
 #
 print()
 print(uid_data + '----' + uid_training)
