@@ -6,6 +6,7 @@ from sqlalchemy import create_engine
 import pandas as pd
 
 from get_database_connection_string import db_connection_str
+from get_sql_for_pull import get_candlestick_pull_query
 
 #
 # temporary user settings
@@ -13,66 +14,15 @@ from get_database_connection_string import db_connection_str
 pipeline_home = '/home/emily/Desktop/projects/test/badass-data-science/badassdatascience/forecasting/deep_learning/pipeline_components'
 
 #
-# define query to run
+# pull candlesticks into a pandas dataframe
 #
-sql_query_to_run = """SELECT
-
-ts.timestamp, cs.o, cs.l, cs.h, cs.c, v.volume
-
-FROM
-
-timeseries_candlestick cs, timeseries_instrument inst,
-timeseries_interval iv, timeseries_pricetype pt,
-timeseries_volume v, timeseries_timestamp ts
-
-WHERE
-
-cs.instrument_id = inst.id
-AND cs.interval_id = iv.id
-AND cs.price_type_id = pt.id
-AND cs.volume_id = v.id
-AND cs.timestamp_id = ts.id
-
-AND pt.name = '%s'
-AND inst.name = '%s'
-AND iv.name = '%s'
-
-ORDER BY timestamp
-;
-"""
-
-#
-# pull candlesticks and save
-#
-# unfortunately, this design has the side effect of
-# saving a pandas dataframe
-#
-def pull_candlesticks_and_save(
-        pipeline_home,
-        df_connection_str,
+def pull_candlesticks_into_pandas_dataframe(
+        db_connection_str,
         sql_query_to_run,
-        
         price_type_name = 'mid',
         instrument_name = 'EUR/USD',
         interval_name = 'Minute',
-
-        table_prefix = 'candlestick_query_results',
-        output_directory_local_to_home = 'output',
-        query_output_directory_local_to_output_directory = 'queries',
-        verbose = False,
 ):
-       
-    #
-    # compute save directory path (without the final filename yet)
-    #
-    output_query_results_directory = '/'.join(
-        [
-            pipeline_home,
-            output_directory_local_to_home,
-            query_output_directory_local_to_output_directory,
-        ]
-    )
-
     #
     # substitute the "%s" query parameters with their intended values
     #
@@ -88,6 +38,33 @@ def pull_candlesticks_and_save(
     #
     pdf = pd.read_sql(sql_query_to_run, con = db_connection)
 
+    #
+    # return the pandas datafrome
+    #
+    return pdf
+
+# 
+# save the Pandas dataframe
+#
+def save_candlesticks_pandas_dataframe(
+        pdf,
+        pipeline_home,
+        table_prefix = 'candlestick_query_results',
+        output_directory_local_to_home = 'output',
+        query_output_directory_local_to_output_directory = 'queries',
+):
+
+    #
+    # compute save directory path (without the final filename yet)
+    #
+    output_query_results_directory = '/'.join(
+        [
+            pipeline_home,
+            output_directory_local_to_home,
+            query_output_directory_local_to_output_directory,
+        ]
+    )
+    
     #
     # save output
     #
@@ -105,9 +82,8 @@ def pull_candlesticks_and_save(
 # run main
 #
 if __name__ == '__main__':
-    full_output_path = pull_candlesticks_and_save(
-        pipeline_home,
-        db_connection_str,
-        sql_query_to_run,
-    )
+    sql_query_for_candlestick_pull = get_candlestick_pull_query()
+    pdf = pull_candlesticks_into_pandas_dataframe(db_connection_str, sql_query_for_candlestick_pull)
+    full_output_path = save_candlesticks_pandas_dataframe(pdf, pipeline_home)
     print(full_output_path)
+    
