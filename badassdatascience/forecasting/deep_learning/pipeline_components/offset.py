@@ -2,8 +2,8 @@
 import pandas as pd
 
 def generate_offset_map(
-        previous_output_filename : str,
-        table_prefix = 'candlestick_query_results', # get this somewhere else
+        previous_output_filename,
+        table_prefix = 'timezone_added', # get this somewhere else
         table_prefix_new = 'weekday_hour_shifted',
 ):
 

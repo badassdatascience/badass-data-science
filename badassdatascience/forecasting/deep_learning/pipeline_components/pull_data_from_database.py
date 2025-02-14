@@ -4,6 +4,7 @@
 import uuid
 from sqlalchemy import create_engine
 import pandas as pd
+import pytz
 
 from get_database_connection_string import db_connection_str
 from get_sql_for_pull import get_candlestick_pull_query
@@ -36,8 +37,23 @@ def pull_candlesticks_into_pandas_dataframe(
     #
     # run query, loading contents into a pandas dataframe
     #
-    pdf = pd.read_sql(sql_query_to_run, con = db_connection)
-
+    pdf = (
+        pd
+        .read_sql(
+            sql_query_to_run,
+            con = db_connection,
+        )
+        .sort_values(
+            by = ['timestamp'],
+        )
+    )
+    pdf.index = pdf['timestamp']
+    
+    # tz = pytz.timezone(tz_name)
+    # pdf['datetime_tz'] = [datetime.datetime.fromtimestamp(x, tz) for x in pdf['timestamp']]
+    # pdf['weekday_tz'] = [datetime.datetime.weekday(x) for x in pdf['datetime_tz']]
+    # pdf['hour_tz'] = [x.hour for x in pdf['datetime_tz']]
+    
     #
     # return the pandas datafrome
     #
