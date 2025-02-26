@@ -52,7 +52,7 @@ set_seed(config['tensorflow_seed'])
 #with open('output/booger_median.pickled', 'rb') as f:
 #    train_val_test_dict = pickle.load(f)
 
-with open('pipeline_components/output/queries/full_train_val_test_309457bc-a227-4332-8c0b-2cf5dd38749c.pickled', 'rb') as fff:
+with open('pipeline_components/output/queries/reduced_train_val_test_309457bc-a227-4332-8c0b-2cf5dd38749c.pickled', 'rb') as fff:
     train_val_test_dict = pickle.load(fff)
 
 
