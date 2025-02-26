@@ -114,10 +114,13 @@ y_val = np.array([train_val_test_dict['val']['y_possibilities_return'][:, 2]])
 # shrink X and y
 #
 n_step = 20  # temp
-M = M[::n_step, :, :]
-M_val = M[::n_step, :, :]
+M = M[::n_step, :, 0:2]
+M_val = M[::n_step, :, 0:2]
 y = y[:, ::n_step]
 y_val = y_val[:, ::n_step]
+
+
+
 
 
 #
