@@ -106,18 +106,27 @@ M_val = train_val_test_dict['val']['X']
 #
 # we use column 2 (zero-based) which is the median
 #
-y = np.array([train_val_test_dict['train']['y_possibilities_return'][:, 2]])
-y_val = np.array([train_val_test_dict['val']['y_possibilities_return'][:, 2]])
+y = train_val_test_dict['train']['y_possibilities_return']
+y_val = train_val_test_dict['val']['y_possibilities_return']
+
+# print(len(y))
+# print(y.shape)
+# print(len(y_val))
+# print(y_val.shape)
 
 
-#
-# shrink X and y
-#
-n_step = 20  # temp
-M = M[::n_step, :, 0:2]
-M_val = M[::n_step, :, 0:2]
-y = y[:, ::n_step]
-y_val = y_val[:, ::n_step]
+
+
+# #
+# # shrink X and y
+# #
+# n_step = 20  # temp
+# M = M[::n_step, :, 0:2]
+# M_val = M[::n_step, :, 0:2]
+# y = y[:, ::n_step]
+# y_val = y_val[:, ::n_step]
+
+
 
 
 
@@ -128,8 +137,6 @@ y_val = y_val[:, ::n_step]
 #
 config['calculated_input_shape'] = (M.shape[1], M.shape[2])
 config['calculated_number_of_outputs'] = y.shape[1]
-
-
 
 
 
