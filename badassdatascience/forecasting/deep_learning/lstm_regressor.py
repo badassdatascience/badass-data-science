@@ -10,6 +10,8 @@ import pickle
 import uuid
 import json
 
+import numpy as np
+
 from numpy.random import seed
 
 import tensorflow
@@ -20,6 +22,7 @@ from keras.models import Sequential
 from keras import regularizers
 from keras.callbacks import ReduceLROnPlateau
 from keras.callbacks import ModelCheckpoint
+from keras.callbacks import EarlyStopping
 from keras.optimizers import Adam
 
 from numba import cuda 
@@ -45,9 +48,26 @@ set_seed(config['tensorflow_seed'])
 #
 # Load data
 #
-with open(config['data_source_path'] + '/' + uid_data + '_train_val_test_dict.pickled', 'rb') as f:
-    train_val_test_dict = pickle.load(f)
+#with open(config['data_source_path'] + '/' + uid_data + '_train_val_test_dict.pickled', 'rb') as f:
+#with open('output/booger_median.pickled', 'rb') as f:
+#    train_val_test_dict = pickle.load(f)
 
+with open('pipeline_components/output/queries/full_train_val_test_309457bc-a227-4332-8c0b-2cf5dd38749c.pickled', 'rb') as fff:
+    train_val_test_dict = pickle.load(fff)
+
+
+# print()
+# print(train_val_test_dict.keys())
+# print()
+# print(train_val_test_dict['train']['X'].shape)
+# print(train_val_test_dict['train']['y_possibilities_return'].shape)
+# print()
+# print(train_val_test_dict['train']['y_possibilities_return'][0:2, :])
+# print()
+
+
+
+    
 #
 # the "train_val_test_dict" also contains this information
 # for validation using the "val" key, but we are not using
@@ -67,16 +87,49 @@ with open(config['data_source_path'] + '/' + uid_data + '_train_val_test_dict.pi
 # Investigated, and implemented "validation_data = (M_val, y_val)"
 # in model fit call. If it works, I will remove this comment.
 #
-M = train_val_test_dict['train']['M']
-y = train_val_test_dict['train']['y_forward']
-M_val = train_val_test_dict['val']['M']
-y_val = train_val_test_dict['val']['y_forward']
+# M = train_val_test_dict['train']['M']
+# #y = train_val_test_dict['train']['y_forward']
+# y = train_val_test_dict['train']['y']
+# M_val = train_val_test_dict['val']['M']
+# #y_val = train_val_test_dict['val']['y_forward']
+# y_val = train_val_test_dict['val']['y']
+
+
+#
+# get X
+#
+M = train_val_test_dict['train']['X']
+M_val = train_val_test_dict['val']['X']
+
+#
+# get y
+#
+# we use column 2 (zero-based) which is the median
+#
+y = np.array([train_val_test_dict['train']['y_possibilities_return'][:, 2]])
+y_val = np.array([train_val_test_dict['val']['y_possibilities_return'][:, 2]])
+
+
+#
+# shrink X and y
+#
+n_step = 20  # temp
+M = M[::n_step, :, :]
+M_val = M[::n_step, :, :]
+y = y[:, ::n_step]
+y_val = y_val[:, ::n_step]
+
 
 #
 # calculate input and output matrix/array shapes
 #
 config['calculated_input_shape'] = (M.shape[1], M.shape[2])
 config['calculated_number_of_outputs'] = y.shape[1]
+
+
+
+
+
 
 #
 # save configuration
@@ -135,40 +188,43 @@ def build_generic_LSTM_regressor(**config):
     model.add(layers.Flatten())
 
     #
-    # insert another batch normalization layer between the flatten and dense layers
+    # insert another batch normalization layer and dropout layer between the flatten and dense layers
     #
     if config['use_batch_normalization_layers']:
         model.add(layers.BatchNormalization(momentum = config['batch_normalization_momentum']))
+
+    if config['use_dropout_layers']:
+        model.add(layers.Dropout(rate = config['dense_dropout_rate'],))
     
-    #
-    # Build dense layers
-    #
-    for n_units_in_layer in config['number_of_cells_per_dense_layer_list']:
+    # #
+    # # Build dense layers
+    # #
+    # for n_units_in_layer in config['number_of_cells_per_dense_layer_list']:
 
-        model.add(
-            layers.Dense(
-                n_units_in_layer,
+    #     model.add(
+    #         layers.Dense(
+    #             n_units_in_layer,
 
-                # https://keras.io/api/layers/regularizers/
-                kernel_regularizer = regularizers.L1L2(
-                    config['regularizer_kernel_L1'],
-                    config['regularizer_kernel_L2'],
-                ),
-                bias_regularizer = regularizers.L2(config['regularizer_bias_L2']),
-                activity_regularizer = regularizers.L2(config['regularizer_activity_L2']),
-            )
-        )
+    #             # https://keras.io/api/layers/regularizers/
+    #             kernel_regularizer = regularizers.L1L2(
+    #                 config['regularizer_kernel_L1'],
+    #                 config['regularizer_kernel_L2'],
+    #             ),
+    #             bias_regularizer = regularizers.L2(config['regularizer_bias_L2']),
+    #             activity_regularizer = regularizers.L2(config['regularizer_activity_L2']),
+    #         )
+    #     )
 
-        if config['dense_activation_function'] == 'LeakyReLU':
-            model.add(layers.LeakyReLU())
-        else:
-            model.add(layers.ReLU())
+    #     if config['dense_activation_function'] == 'LeakyReLU':
+    #         model.add(layers.LeakyReLU())
+    #     else:
+    #         model.add(layers.ReLU())
 
-        if config['use_batch_normalization_layers']:
-            model.add(layers.BatchNormalization(momentum = config['batch_normalization_momentum']))
+    #     if config['use_batch_normalization_layers']:
+    #         model.add(layers.BatchNormalization(momentum = config['batch_normalization_momentum']))
 
-        if config['use_dropout_layers']:
-            model.add(layers.Dropout(rate = config['dense_dropout_rate'],))
+    #     if config['use_dropout_layers']:
+    #         model.add(layers.Dropout(rate = config['dense_dropout_rate'],))
 
     #
     # define output layer
@@ -187,16 +243,16 @@ def build_generic_LSTM_regressor(**config):
         )
     )
 
-    if config['final_dense_activation_function'] == 'LeakyReLU':
-        model.add(layers.LeakyReLU())
-    else:
-        model.add(layers.ReLU())
-
     if config['use_batch_normalization_layers']:
         model.add(layers.BatchNormalization(momentum = config['batch_normalization_momentum'])) 
 
     if config['use_dropout_layers']:
         model.add(layers.Dropout(rate = config['dense_dropout_rate'],))
+    
+    if config['final_dense_activation_function'] == 'LeakyReLU':
+        model.add(layers.LeakyReLU())
+    else:
+        model.add(layers.ReLU())
     
     return model
 
@@ -229,6 +285,10 @@ def fit_generic_regressor(model, train_X, train_y, val_X, val_y, **config):
             monitor = config['model_checkpoint_monitor'],
             save_best_only = config['model_checkpoint_save_best_only'],
         ),
+        EarlyStopping(
+            monitor = config['early_stopping_monitor'],
+            patience = config['early_stopping_patience'],
+        ),
     ]
 
     if config['use_variable_learning_rate']:
@@ -247,6 +307,9 @@ def fit_generic_regressor(model, train_X, train_y, val_X, val_y, **config):
             validation_data = (val_X, val_y),
             epochs = config['epochs'],
             batch_size = config['batch_size'],
+
+            # FIX THIS:
+            # need the other callbacks
         )
         
 
