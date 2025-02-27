@@ -66,8 +66,8 @@ config = {
     #
     # Neural network architecture
     #
-    'number_of_cells_per_RNN_layer_list' : [200, 200, 200],
-    'number_of_cells_per_dense_layer_list' : [100],
+    'number_of_cells_per_RNN_layer_list' : [200, 200, 200, 200, 200],
+    'number_of_cells_per_dense_layer_list' : [100, 100],
 
     #
     # Activation functions
