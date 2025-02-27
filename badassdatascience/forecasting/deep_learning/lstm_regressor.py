@@ -56,14 +56,6 @@ with open('pipeline_components/output/queries/reduced_train_val_test_309457bc-a2
     train_val_test_dict = pickle.load(fff)
 
 
-# print()
-# print(train_val_test_dict.keys())
-# print()
-# print(train_val_test_dict['train']['X'].shape)
-# print(train_val_test_dict['train']['y_possibilities_return'].shape)
-# print()
-# print(train_val_test_dict['train']['y_possibilities_return'][0:2, :])
-# print()
 
 
 
@@ -107,7 +99,8 @@ M_val = train_val_test_dict['val']['X']
 # we use column 2 (zero-based) which is the median
 #
 
-config['y_set'] = 'y_possibilities_lhc_mean' # temp
+config['y_set'] = 'y_possibilities_lhc_mean'    # temp
+config['y_forward_set'] = 'y_forward_lhc_mean'  # temp
 
 y = train_val_test_dict['train'][config['y_set']]
 y_val = train_val_test_dict['val'][config['y_set']]
