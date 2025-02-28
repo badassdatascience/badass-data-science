@@ -96,14 +96,11 @@ M_val = train_val_test_dict['val']['X']
 #
 # get y
 #
-# we use column 2 (zero-based) which is the median
-#
+y = train_val_test_dict['train'][config['y_forward_set']]
+y_val = train_val_test_dict['val'][config['y_forward_set']]
 
-config['y_set'] = 'y_possibilities_lhc_mean'    # temp
-config['y_forward_set'] = 'y_forward_lhc_mean'  # temp
 
-y = train_val_test_dict['train'][config['y_set']]
-y_val = train_val_test_dict['val'][config['y_set']]
+
 
 # print(len(y))
 # print(y.shape)

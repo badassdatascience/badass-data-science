@@ -31,6 +31,8 @@ config = {
     'uid_data' : uid_data,
     'uid_training' : uid_training,
 
+    'y_forward_set' : 'y_forward_lhc_mean',
+    
     'data_source_path' : temp_directory + '/output',
            
     #
@@ -66,8 +68,8 @@ config = {
     #
     # Neural network architecture
     #
-    'number_of_cells_per_RNN_layer_list' : [200, 200, 200, 200, 200],
-    'number_of_cells_per_dense_layer_list' : [100, 100, 50],
+    'number_of_cells_per_RNN_layer_list' : [200, 200, 200, 200, 200, 200],
+    'number_of_cells_per_dense_layer_list' : [],
 
     #
     # Activation functions
