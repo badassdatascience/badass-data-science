@@ -30,7 +30,8 @@ def generate_offset_map(**config):
     
     pdf_shifted_weekday.to_parquet(output_file_name_and_path)
 
-    
+
+# need to investigate why some of the resulting rows have null values:
 def merge_offset_map(**config):
 
     candlesticks_file_name_and_path = config['directory_output'] + '/' + config['filename_timezone_added']    
@@ -46,8 +47,13 @@ def merge_offset_map(**config):
             on = ['weekday_tz', 'hour_tz'],
             how = 'left',
         )
+        .dropna()  # investigate why there are NaNs here sometime soon
         .sort_values(by = ['datetime_tz'])
+        .reset_index()
+        .drop(columns = ['index'])
     )
+    
+    pdf['weekday_shifted'] = pdf['weekday_shifted'].astype('uint8')
     
     candlesticks_weekday_merged_file_name_and_path = config['directory_output'] + '/' + config['filename_weekday_shift_merged']
     pdf.to_parquet(candlesticks_weekday_merged_file_name_and_path)
