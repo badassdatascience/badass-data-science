@@ -29,3 +29,26 @@ def generate_offset_map(**config):
     output_file_name_and_path = config['directory_output'] + '/' + config['filename_offset']
     
     pdf_shifted_weekday.to_parquet(output_file_name_and_path)
+
+    
+def merge_offset_map(**config):
+
+    candlesticks_file_name_and_path = config['directory_output'] + '/' + config['filename_timezone_added']    
+    weekday_shifted_file_name_and_path = config['directory_output'] + '/' + config['filename_offset']
+
+    pdf_candlesticks = pd.read_parquet(candlesticks_file_name_and_path)
+    pdf_shifted = pd.read_parquet(weekday_shifted_file_name_and_path)
+
+    pdf = (
+        pd.merge(
+            pdf_candlesticks,
+            pdf_shifted,
+            on = ['weekday_tz', 'hour_tz'],
+            how = 'left',
+        )
+        .sort_values(by = ['datetime_tz'])
+    )
+    
+    candlesticks_weekday_merged_file_name_and_path = config['directory_output'] + '/' + config['filename_weekday_shift_merged']
+    pdf.to_parquet(candlesticks_weekday_merged_file_name_and_path)
+    
