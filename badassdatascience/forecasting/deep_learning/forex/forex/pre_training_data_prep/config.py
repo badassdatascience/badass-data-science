@@ -17,4 +17,6 @@ config = {
     'filename_timezone_added' : 'candlesticks_timezone_added.parquet',
     'filename_offset' : 'candlesticks_timezone_weekday_offset.parquet',
     'filename_weekday_shift_merged' : 'candlesticks_weekday_offset_merged.parquet',
+    'filename_shift_days_and_hours_as_needed' : 'candlesticks_shifted_as_needed.parquet',
+    'filename_finalized_pandas' : 'candlesticks_finalized_pandas.parquet',
 }

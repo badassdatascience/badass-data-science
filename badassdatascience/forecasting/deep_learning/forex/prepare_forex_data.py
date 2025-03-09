@@ -17,7 +17,7 @@ from forex.pre_training_data_prep.config import config
 ###########
 
 with DAG(
-        dag_id = config['dag_id'],   # this may not work in the UI
+        dag_id = 'prepare_forex_data',
         start_date = datetime(2024, 1, 1),    # change this at some point
         schedule_interval = None,
         catchup = False,
@@ -82,16 +82,43 @@ with DAG(
             minutes = config['retry_delay_minutes_pull_forex_data'],
         ),
     )
-    
-    
+
+    #
+    # perform the final date shift
+    #
+    from forex.pre_training_data_prep.offset import shift_days_and_hours_as_needed
+    task_shift_days_and_hours_as_needed = PythonOperator(
+        task_id = 'task_shift_days_and_hours_as_needed',
+        python_callable = shift_days_and_hours_as_needed,
+        op_kwargs = config,
+        retries = config['retries_pull_forex_data'],
+        retry_delay = timedelta(
+            minutes = config['retry_delay_minutes_pull_forex_data'],
+        ),
+    )
+
+    #
+    # finalize the pandas portion
+    #
+    from forex.pre_training_data_prep.finalize_pandas_df import finalize_pandas_candlesticks
+    task_finalize_pandas_candlesticks = PythonOperator(
+        task_id = 'task_finalize_pandas_candlesticks',
+        python_callable = finalize_pandas_candlesticks,
+        op_kwargs = config,
+        retries = config['retries_pull_forex_data'],
+        retry_delay = timedelta(
+            minutes = config['retry_delay_minutes_pull_forex_data'],
+        ),
+    )
+        
     
     ###############################
     #   Assemble DAG from tasks   #
     ###############################
     
     [ task_pull_forex_data ] >> task_add_timezone_information
-    [ task_add_timezone_information, task_generate_offset_map ] >> task_merge_offset_map
-
+    [ task_add_timezone_information, task_generate_offset_map ] >> task_merge_offset_map >> task_shift_days_and_hours_as_needed >> task_finalize_pandas_candlesticks
+    
 #
 # Enable command-line execution
 #
