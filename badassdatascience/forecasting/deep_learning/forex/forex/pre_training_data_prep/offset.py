@@ -1,3 +1,7 @@
+# This code assumes the broker stops trading at 17:00 ET on Friday
+# and resumes at 17:00 ET Sunday. Need to verify this assumption, but
+# I think it is correct given my previous effort
+
 import pandas as pd
 
 def generate_offset_map(**config):
@@ -47,7 +51,7 @@ def merge_offset_map(**config):
             on = ['weekday_tz', 'hour_tz'],
             how = 'left',
         )
-        .dropna()  # investigate why there are NaNs here sometime soon
+        .dropna()
         .sort_values(by = ['datetime_tz'])
         .reset_index()
         .drop(columns = ['index'])
