@@ -23,6 +23,19 @@ with DAG(
         catchup = False,
 ) as dag:
 
+
+    #
+    # specify common kwargs (config is frozen at this point)
+    #
+    common_kwargs = {
+        'op_kwargs' : config,
+        'retries' : config['retries_pull_forex_data'],
+        'retry_delay' : timedelta(
+            minutes = config['retry_delay_minutes_pull_forex_data'],
+        ),
+    }
+        
+    
     #################################
     #   Define Pandas-based tasks   #
     #################################
@@ -34,11 +47,7 @@ with DAG(
     task_pull_forex_data = PythonOperator(
         task_id = 'task_pull_forex_data',
         python_callable = pull_forex_data,
-        op_kwargs = config,
-        retries = config['retries_pull_forex_data'],
-        retry_delay = timedelta(
-            minutes = config['retry_delay_minutes_pull_forex_data'],
-        ),
+        **common_kwargs,
     )
 
     #
@@ -48,11 +57,7 @@ with DAG(
     task_add_timezone_information = PythonOperator(
         task_id = 'task_add_timezone_information',
         python_callable = add_timezone_information,
-        op_kwargs = config,
-        retries = config['retries_pull_forex_data'],
-        retry_delay = timedelta(
-            minutes = config['retry_delay_minutes_pull_forex_data'],
-        ),
+        **common_kwargs,
     )
 
     #
@@ -62,11 +67,7 @@ with DAG(
     task_generate_offset_map = PythonOperator(
         task_id = 'task_generate_offset_map',
         python_callable = generate_offset_map,
-        op_kwargs = config,
-        retries = config['retries_pull_forex_data'],
-        retry_delay = timedelta(
-            minutes = config['retry_delay_minutes_pull_forex_data'],
-        ),
+        **common_kwargs,
     )
 
     #
@@ -76,11 +77,7 @@ with DAG(
     task_merge_offset_map = PythonOperator(
         task_id = 'task_merge_offset_map',
         python_callable = merge_offset_map,
-        op_kwargs = config,
-        retries = config['retries_pull_forex_data'],
-        retry_delay = timedelta(
-            minutes = config['retry_delay_minutes_pull_forex_data'],
-        ),
+        **common_kwargs,
     )
 
     #
@@ -90,11 +87,7 @@ with DAG(
     task_shift_days_and_hours_as_needed = PythonOperator(
         task_id = 'task_shift_days_and_hours_as_needed',
         python_callable = shift_days_and_hours_as_needed,
-        op_kwargs = config,
-        retries = config['retries_pull_forex_data'],
-        retry_delay = timedelta(
-            minutes = config['retry_delay_minutes_pull_forex_data'],
-        ),
+        **common_kwargs,
     )
 
     #
@@ -104,11 +97,7 @@ with DAG(
     task_finalize_pandas_candlesticks = PythonOperator(
         task_id = 'task_finalize_pandas_candlesticks',
         python_callable = finalize_pandas_candlesticks,
-        op_kwargs = config,
-        retries = config['retries_pull_forex_data'],
-        retry_delay = timedelta(
-            minutes = config['retry_delay_minutes_pull_forex_data'],
-        ),
+        **common_kwargs,
     )
         
     
