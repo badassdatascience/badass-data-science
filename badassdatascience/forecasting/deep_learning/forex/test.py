@@ -8,6 +8,8 @@ pandas_dataframe_list = [
     config['filename_timezone_added'],
     config['filename_offset'],
     config['filename_weekday_shift_merged'],
+    config['filename_shift_days_and_hours_as_needed'],
+    config['filename_finalized_pandas'],
 ]
 
 for item in pandas_dataframe_list:
