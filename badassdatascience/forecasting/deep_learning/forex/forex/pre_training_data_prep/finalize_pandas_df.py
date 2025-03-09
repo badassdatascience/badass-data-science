@@ -1,5 +1,5 @@
 import numpy
-import pandas
+import pandas as pd
 
 def finalize_pandas_candlesticks(**config):
 
