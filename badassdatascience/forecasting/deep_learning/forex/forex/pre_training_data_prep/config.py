@@ -19,4 +19,18 @@ config = {
     'filename_weekday_shift_merged' : 'candlesticks_weekday_offset_merged.parquet',
     'filename_shift_days_and_hours_as_needed' : 'candlesticks_shifted_as_needed.parquet',
     'filename_finalized_pandas' : 'candlesticks_finalized_pandas.parquet',
+    'filename_conversion_to_spark' : 'spark_converted.parquet',
+    'filename_pivot_and_sort' : 'spark_pivot_and_sort.parquet',
+    'filename_timestamp_diff' : 'spark_timestamp_diff.parquet',
+
+    'spark_config' : [
+        ('spark.executor.memory', '75g'),
+        ('spark.executor.cores', '20'),
+        ('spark.cores.max', '20'),
+        ('spark.driver.memory', '75g'),
+        ('spark.sql.execution.arrow.pyspark.enabled', 'true'),
+    ],
+
+    'n_processors_to_coalesce' : 20,
+    'seconds_divisor' : 60,
 }
