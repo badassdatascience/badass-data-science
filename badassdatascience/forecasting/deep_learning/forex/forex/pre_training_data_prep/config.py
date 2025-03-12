@@ -22,6 +22,7 @@ config = {
     'filename_conversion_to_spark' : 'spark_converted.parquet',
     'filename_pivot_and_sort' : 'spark_pivot_and_sort.parquet',
     'filename_timestamp_diff' : 'spark_timestamp_diff.parquet',
+    'filename_full_day_nans' : 'spark_full_day_nans.parquet',
 
     'spark_config' : [
         ('spark.executor.memory', '75g'),
