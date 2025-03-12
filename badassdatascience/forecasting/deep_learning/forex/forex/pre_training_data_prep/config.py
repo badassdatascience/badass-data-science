@@ -3,6 +3,8 @@ config = {
     'database_name' : 'django',
     'dag_id' : 'NEW_prepare_forex_data',
 
+    'list_data_columns' : ['return', 'volatility', 'volume', 'lhc_mean'],
+    
     'tz_name' : 'US/Eastern',  # DON'T change this!
     
     'price_type_name' : 'mid',
