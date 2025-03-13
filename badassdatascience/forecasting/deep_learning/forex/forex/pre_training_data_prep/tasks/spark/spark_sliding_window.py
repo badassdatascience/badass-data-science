@@ -104,51 +104,24 @@ def do_sliding_window(**config):
     spark = get_spark_session(config['spark_config'])
     sdf_arrays = spark.read.parquet(config['directory_output'] + '/' + config['filename_sliding_window_space_check'])
 
-    sdf_arrays = (
-        sdf_arrays
-        .withColumn(
-            'sw_timestamp',
-            udf_make_sliding_window_int(
-                f.col('timestamps_all'),
-                f.lit(config['n_back']),
-                f.lit(config['n_forward']),
-                f.lit(config['offset']),
-                f.lit(config['n_step']),
-            )
-        )
-        .drop('timestamps_all')
-    )
-
-    for item in config['list_data_columns']:
+    items_list = [('sw_timestamp', 'timestamps_all')]
+    items_list.extend([(new_name, old_name) for new_name, old_name in zip([x + '_and_nans' for x in config['list_data_columns']], ['sw_' + x for x in config['list_data_columns']]])
+    items_list.extend([(new_name, old_name) for new_name, old_name in zip([x for x in config['list_data_columns_no_scale']], ['sw_' + x for x in config['list_data_columns_no_scale']]])
+    
+    for (new_name, old_name) in in items_list:
         sdf_arrays = (
             sdf_arrays
             .withColumn(
-                'sw_' + item,
+                new_name,
                 udf_make_sliding_window_float(
-                    f.col(item + '_and_nans'),
+                    f.col(old_name),
                     f.lit(config['n_back']),
                     f.lit(config['n_forward']),
                     f.lit(config['offset']),
                     f.lit(config['n_step']),
                 )
             )
-            .drop(item + '_and_nans')
-        )
-
-    for item in config['list_data_columns_no_scale']:
-        sdf_arrays = (
-            sdf_arrays
-            .withColumn(
-                'sw_' + item,
-                udf_make_sliding_window_float(
-                    f.col(item),
-                    f.lit(config['n_back']),
-                    f.lit(config['n_forward']),
-                    f.lit(config['offset']),
-                    f.lit(config['n_step']),
-                )
-            )
-            .drop(item)
+            .drop(new_name)
         )
 
     sdf_arrays.write.mode('overwrite').parquet(config['directory_output'] + '/' + config['filename_sliding_window'])

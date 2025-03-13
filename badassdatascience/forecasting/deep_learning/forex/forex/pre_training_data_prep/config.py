@@ -35,6 +35,7 @@ config = {
     'filename_sliding_window_space_check' : 'spark_sliding_window_space_check.parquet',
     'filename_sliding_window_QA' : 'spark_sliding_window_QA.parquet',
     'filename_sliding_window' : 'spark_sliding_window.parquet',
+    'filename_explode_array' : 'spark_explode_array.parquet',
 
     'spark_config' : [
         ('spark.executor.memory', '100g'),
