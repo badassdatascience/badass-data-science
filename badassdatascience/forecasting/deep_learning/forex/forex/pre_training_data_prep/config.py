@@ -4,7 +4,12 @@ config = {
     'dag_id' : 'NEW_prepare_forex_data',
 
     'list_data_columns' : ['return', 'volatility', 'volume', 'lhc_mean'],
-    'list_data_columns_full' : ['return', 'volatility', 'volume', 'lhc_mean', 'sin_24', 'cos_24'],
+    'list_data_columns_no_scale' : ['sin_24', 'cos_24'],
+
+    'n_back' : 180,
+    'n_forward' : 30,
+    'offset' : 1,
+    'n_step' : 10,
     
     'tz_name' : 'US/Eastern',  # DON'T change this!
     
@@ -26,6 +31,7 @@ config = {
     'filename_pivot_and_sort' : 'spark_pivot_and_sort.parquet',
     'filename_timestamp_diff' : 'spark_timestamp_diff.parquet',
     'filename_full_day_nans' : 'spark_full_day_nans.parquet',
+    'filename_post_trig' : 'spark_post_trig.parquet',
 
     'spark_config' : [
         ('spark.executor.memory', '100g'),
