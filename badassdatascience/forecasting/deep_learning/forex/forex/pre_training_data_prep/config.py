@@ -27,10 +27,10 @@ config = {
     'filename_full_day_nans' : 'spark_full_day_nans.parquet',
 
     'spark_config' : [
-        ('spark.executor.memory', '75g'),
+        ('spark.executor.memory', '100g'),
         ('spark.executor.cores', '20'),
         ('spark.cores.max', '20'),
-        ('spark.driver.memory', '75g'),
+        ('spark.driver.memory', '100g'),
         ('spark.sql.execution.arrow.pyspark.enabled', 'true'),
     ],
 
