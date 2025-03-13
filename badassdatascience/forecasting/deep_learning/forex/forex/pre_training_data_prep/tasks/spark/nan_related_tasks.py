@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 
 import pyspark.sql.functions as f
-from pyspark.sql.types import ArrayType, IntegerType, FloatType
+from pyspark.sql.types import ArrayType, IntegerType, FloatType, BooleanType
 
 from utilities.spark_session import get_spark_session
 
@@ -120,3 +120,25 @@ def task_find_full_day_nans(**config):
 
     sdf_arrays.write.mode('overwrite').parquet(config['directory_output'] + '/' + config['filename_full_day_nans'])
     spark.stop()
+
+
+
+
+
+def get_max_consecutive_NaNs(a_list):
+
+    n_consec_nan_list = [0]
+    count = 0
+    is_in_nan_group = False
+    for item in np.array(a_list):
+        if np.isnan(item) or item == None:
+            is_in_nan_group = True
+            count += 1
+        if not np.isnan(item) and is_in_nan_group:
+            is_in_nan_group = False
+            n_consec_nan_list.append(count)
+            count = 0
+        
+    return max(n_consec_nan_list)
+    
+udf_get_max_consecutive_NaNs = f.udf(get_max_consecutive_NaNs, IntegerType())
