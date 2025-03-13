@@ -44,16 +44,16 @@ udf_count_nans_in_array = f.udf(count_nans_in_array, IntegerType())
 
 
 ##https://stackoverflow.com/questions/41190852/most-efficient-way-to-forward-fill-nan-values-in-numpy-array
-#def forward_fill(values_array):
-#    arr = np.array([values_array])
-#    mask = np.isnan(arr)
-#    idx = np.where(~mask, np.arange(mask.shape[1]), 0)
-#    np.maximum.accumulate(idx, axis = 1, out = idx)
-#    arr[mask] = arr[np.nonzero(mask)[0], idx[mask]]
-#    to_return = list([float(x) for x in arr[0]])
-#    return to_return
-#
-#udf_forward_fill = f.udf(forward_fill, ArrayType(FloatType()))
+def forward_fill(values_array):
+    arr = np.array([values_array])
+    mask = np.isnan(arr)
+    idx = np.where(~mask, np.arange(mask.shape[1]), 0)
+    np.maximum.accumulate(idx, axis = 1, out = idx)
+    arr[mask] = arr[np.nonzero(mask)[0], idx[mask]]
+    to_return = list([float(x) for x in arr[0]])
+    return to_return
+
+udf_forward_fill = f.udf(forward_fill, ArrayType(FloatType()))
 
 
 def locate_nans(timestamp_array, timestamp_all_array, values_array):
@@ -180,4 +180,23 @@ def filter_by_nan_counts(**config):
     )
 
     sdf_arrays.write.mode('overwrite').parquet(config['directory_output'] + '/' + config['filename_post_nan_filters'])
+    spark.stop()
+
+
+def forward_fill_it_all(**config):
+    spark = get_spark_session(config['spark_config'])
+    sdf_arrays = spark.read.parquet(config['directory_output'] + '/' + config['filename_scaling_stats'])
+
+    items_list = []
+    items_list.extend(config['list_data_columns'])
+    items_list.extend(config['list_data_columns_no_scale'])
+
+    for item in items_list:
+        sdf_arrays = (
+            sdf_arrays
+            .withColumn(item + '_ff', udf_forward_fill(f.col(item)))
+            .drop(item)
+        )
+
+    sdf_arrays.write.mode('overwrite').parquet(config['directory_output'] + '/' + config['filename_forward_filled'])
     spark.stop()

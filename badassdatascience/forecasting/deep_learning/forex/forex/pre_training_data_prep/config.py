@@ -42,7 +42,9 @@ config = {
     'filename_post_sw_nans' : 'spark_post_sw_nans.parquet',
     'filename_post_nan_filters' : 'spark_post_nan_filters.parquet',
     'filename_scaling_stats' : 'spark_scaling_stats.parquet',
-
+    'filename_forward_filled' : 'spark_forward_filled',
+    'filename_scaled' : 'spark_scaled',
+    
     'spark_config' : [
         ('spark.executor.memory', '100g'),
         ('spark.executor.cores', '20'),

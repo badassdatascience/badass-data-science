@@ -1,7 +1,7 @@
 import numpy as np
 
 import pyspark.sql.functions as f
-from pyspark.sql.types import FloatType
+from pyspark.sql.types import ArrayType, FloatType
 
 from utilities.spark_session import get_spark_session
 
@@ -27,4 +27,28 @@ def compute_scaling_statistics_for_later_use(**config):
         )
 
     sdf_arrays.write.mode('overwrite').parquet(config['directory_output'] + '/' + config['filename_scaling_stats'])
+    spark.stop()
+
+
+
+def properly_scale(the_array, the_mean, the_std):
+    return [float(x) for x in (np.array(the_array) - the_mean) / the_std]
+
+udf_properly_scale = f.udf(properly_scale, ArrayType(FloatType()))
+
+def properly_scale_it_all(**config):
+    spark = get_spark_session(config['spark_config'])
+    sdf_arrays = spark.read.parquet(config['directory_output'] + '/' + config['filename_forward_filled'])
+
+    for item in config['list_data_columns']:
+        sdf_arrays = (
+            sdf_arrays
+            .withColumn(
+                item + '_ff_scaled',
+                udf_properly_scale(f.col(item + '_ff'), f.col('mean_' + item), f.col('std_' + item))
+            )
+            .drop(item + '_ff')
+        )
+
+    sdf_arrays.write.mode('overwrite').parquet(config['directory_output'] + '/' + config['filename_scaled'])
     spark.stop()
