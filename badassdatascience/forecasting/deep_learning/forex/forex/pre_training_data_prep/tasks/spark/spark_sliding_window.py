@@ -2,12 +2,9 @@ import numpy as np
 from numpy.lib.stride_tricks import sliding_window_view
 
 import pyspark.sql.functions as f
-from pyspark.sql.types import ArrayType, FloatType, IntegerType
+from pyspark.sql.types import ArrayType, FloatType, IntegerType, BooleanType
 
-n_back = 180
-n_forward = 30
-offset = 1
-n_step = 10
+from utilities.spark_session import get_spark_session
 
 # https://numpy.org/devdocs/reference/generated/numpy.lib.stride_tricks.sliding_window_view.html
 def make_sliding_window_float(
@@ -59,31 +56,100 @@ udf_make_sliding_window_int = f.udf(
     ArrayType(ArrayType(IntegerType()))
 )
 
-#def find_too_short(
-#        df,
-#):
+def do_we_have_enough_space_for_a_sliding_window(
+    the_list,
+    n_back,
+    n_forward,
+    offset,
+):
+    threshold = n_back + n_forward + offset    
+    return threshold <= len(the_list)
 
-#    n_back = 180
-#    n_forward = 30
-#    offset = 1
-#    column_name = 'timestamps_all_sorted_length'
+udf_do_we_have_enough_space_for_a_sliding_window = f.udf(do_we_have_enough_space_for_a_sliding_window, BooleanType())
 
-#    threshold = n_back + n_forward + offset
-#    return df.where(f.col(column_name) >= threshold)
-
-
-def do_sliding_window(df):
+def test_window_space(**config):
+    spark = get_spark_session(config['spark_config'])
+    sdf_arrays = spark.read.parquet(config['directory_output'] + '/' + config['filename_post_trig'])
     
-    item_list = ['return', 'volatility', 'volume', 'lhc_mean', 'sin', 'cos']
-
-    for item in item_list:
-        df = (
-            df
-            .withColumn('sw_' + item, udf_make_sliding_window_float(f.col(item + '_sorted')))
+    sdf_arrays = (
+        sdf_arrays
+        .withColumn(
+            'is_long_enough',
+            udf_do_we_have_enough_space_for_a_sliding_window(
+                f.col('timestamps_all'),
+                f.lit(config['n_back']),
+                f.lit(config['n_forward']),
+                f.lit(config['offset']),
+            )
         )
-    for item in item_list:
-        df = df.drop(item + '_sorted')
+    )
 
-    df = df.withColumn('sw_timestamps', udf_make_sliding_window_int(f.col('timestamps_all_sorted'))) #.drop('timestamps_all_sorted')
+    sdf_qa = (
+        sdf_arrays.select('date_post_shift', 'is_long_enough')
+        .groupBy('is_long_enough')
+        .agg(f.count('date_post_shift').alias('count_column'))
+    )
+    sdf_qa.write.mode('overwrite').parquet(config['directory_output'] + '/' + config['filename_sliding_window_QA'])
+    
+    sdf_arrays = (
+        sdf_arrays
+        .where(f.col('is_long_enough'))
+        .drop('is_long_enough')
+    )
+    sdf_arrays.write.mode('overwrite').parquet(config['directory_output'] + '/' + config['filename_sliding_window_space_check'])
+    
+    spark.stop()
 
-    return df
+def do_sliding_window(**config):
+    spark = get_spark_session(config['spark_config'])
+    sdf_arrays = spark.read.parquet(config['directory_output'] + '/' + config['filename_sliding_window_space_check'])
+
+    sdf_arrays = (
+        sdf_arrays
+        .withColumn(
+            'sw_timestamp',
+            udf_make_sliding_window_int(
+                f.col('timestamps_all'),
+                f.lit(config['n_back']),
+                f.lit(config['n_forward']),
+                f.lit(config['offset']),
+                f.lit(config['n_step']),
+            )
+        )
+        .drop('timestamps_all')
+    )
+
+    for item in config['list_data_columns']:
+        sdf_arrays = (
+            sdf_arrays
+            .withColumn(
+                'sw_' + item,
+                udf_make_sliding_window_float(
+                    f.col(item + '_and_nans'),
+                    f.lit(config['n_back']),
+                    f.lit(config['n_forward']),
+                    f.lit(config['offset']),
+                    f.lit(config['n_step']),
+                )
+            )
+            .drop(item + '_and_nans')
+        )
+
+    for item in config['list_data_columns_no_scale']:
+        sdf_arrays = (
+            sdf_arrays
+            .withColumn(
+                'sw_' + item,
+                udf_make_sliding_window_float(
+                    f.col(item),
+                    f.lit(config['n_back']),
+                    f.lit(config['n_forward']),
+                    f.lit(config['offset']),
+                    f.lit(config['n_step']),
+                )
+            )
+            .drop(item)
+        )
+
+    sdf_arrays.write.mode('overwrite').parquet(config['directory_output'] + '/' + config['filename_sliding_window'])
+    spark.stop()

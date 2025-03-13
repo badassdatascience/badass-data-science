@@ -32,6 +32,9 @@ config = {
     'filename_timestamp_diff' : 'spark_timestamp_diff.parquet',
     'filename_full_day_nans' : 'spark_full_day_nans.parquet',
     'filename_post_trig' : 'spark_post_trig.parquet',
+    'filename_sliding_window_space_check' : 'spark_sliding_window_space_check.parquet',
+    'filename_sliding_window_QA' : 'spark_sliding_window_QA.parquet',
+    'filename_sliding_window' : 'spark_sliding_window.parquet',
 
     'spark_config' : [
         ('spark.executor.memory', '100g'),
