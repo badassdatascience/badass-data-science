@@ -34,3 +34,5 @@ def task_expand_arrays(**config):
     )
 
     sdf_arrays.write.mode('overwrite').parquet(config['directory_output'] + '/' + config['filename_explode_array'])
+
+    spark.stop()
