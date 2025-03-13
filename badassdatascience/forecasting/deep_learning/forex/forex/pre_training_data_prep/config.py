@@ -4,6 +4,7 @@ config = {
     'dag_id' : 'NEW_prepare_forex_data',
 
     'list_data_columns' : ['return', 'volatility', 'volume', 'lhc_mean'],
+    'list_data_columns_full' : ['return', 'volatility', 'volume', 'lhc_mean', 'sin_24', 'cos_24'],
     
     'tz_name' : 'US/Eastern',  # DON'T change this!
     
