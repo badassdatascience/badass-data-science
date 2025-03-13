@@ -20,6 +20,9 @@ config = {
     'retries_pull_forex_data' : 1,
     'retry_delay_minutes_pull_forex_data' : 5,
 
+    'cutoff_max_consec_nans' : 2,
+    'cutoff_total_nan_count' : 5,
+
     'directory_output' : '/home/emily/Desktop/projects/test/badass-data-science/badassdatascience/forecasting/deep_learning/forex/output',
     'filename_candlesticks_query_results' : 'candlesticks_query_results.parquet',
     'filename_timezone_added' : 'candlesticks_timezone_added.parquet',
@@ -37,6 +40,8 @@ config = {
     'filename_sliding_window' : 'spark_sliding_window.parquet',
     'filename_explode_array' : 'spark_explode_array.parquet',
     'filename_post_sw_nans' : 'spark_post_sw_nans.parquet',
+    'filename_post_nan_filters' : 'spark_post_nan_filters.parquet',
+    'filename_scaling_stats' : 'spark_scaling_stats.parquet',
 
     'spark_config' : [
         ('spark.executor.memory', '100g'),

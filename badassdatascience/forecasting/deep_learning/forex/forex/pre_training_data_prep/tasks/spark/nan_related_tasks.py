@@ -1,5 +1,6 @@
 import numpy as np
 import pandas as pd
+import matplotlib.pyplot as plt
 
 import pyspark.sql.functions as f
 from pyspark.sql.types import ArrayType, IntegerType, FloatType, BooleanType
@@ -142,3 +143,41 @@ def get_max_consecutive_NaNs(a_list):
     return max(n_consec_nan_list)
     
 udf_get_max_consecutive_NaNs = f.udf(get_max_consecutive_NaNs, IntegerType())
+
+
+
+def plot_post_sw_nans(**config):
+    spark = get_spark_session(config['spark_config'])
+    sdf_arrays = spark.read.parquet(config['directory_output'] + '/' + config['filename_post_sw_nans'])
+
+    collected_content = sdf_arrays.select('date_post_shift', 'timestamp', 'max_consec_nans', 'total_nan_count').collect()
+    list_max_consec_nans = [x['max_consec_nans'] for x in collected_content]
+    list_total_nan_count = [x['total_nan_count'] for x in collected_content]
+
+    plt.figure()
+    
+    plt.subplot(1, 2, 1)
+    plt.boxplot(list_max_consec_nans, widths = 0.9)
+    plt.ylim([-2, 5])
+    
+    plt.subplot(1, 2, 2)
+    plt.boxplot(list_total_nan_count, widths = 0.9)
+    plt.ylim([-2, 10])
+
+    plt.show()
+    plt.close()
+
+    spark.stop()
+
+
+def filter_by_nan_counts(**config):
+    spark = get_spark_session(config['spark_config'])
+    sdf_arrays = (
+        spark.read.parquet(config['directory_output'] + '/' + config['filename_post_sw_nans'])
+        .where(f.col('max_consec_nans') <= config['cutoff_max_consec_nans'])
+        .where(f.col('total_nan_count') <= config['cutoff_total_nan_count'])
+        .drop('max_consec_nans', 'total_nan_count')
+    )
+
+    sdf_arrays.write.mode('overwrite').parquet(config['directory_output'] + '/' + config['filename_post_nan_filters'])
+    spark.stop()
