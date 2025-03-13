@@ -1,4 +1,12 @@
+import numpy as np
+import pandas as pd
+
+import pyspark.sql.functions as f
 from pyspark.sql.types import ArrayType, IntegerType, FloatType
+
+from utilities.spark_session import get_spark_session
+
+
 
 def get_all_timestamps(timestamp_array, seconds_divisor):
     return [int(x) for x in range(min(timestamp_array), max(timestamp_array) + seconds_divisor, seconds_divisor)]
@@ -72,3 +80,43 @@ def locate_nans(timestamp_array, timestamp_all_array, values_array):
     return to_return
 
 udf_locate_nans = f.udf(locate_nans, ArrayType(FloatType()))
+
+
+
+def task_find_full_day_nans(**config):
+
+    spark = get_spark_session(config['spark_config'])
+    sdf_arrays = (
+        spark.read.parquet(config['directory_output'] + '/' + config['filename_timestamp_diff'])
+        .coalesce(config['n_processors_to_coalesce'])
+        .orderBy('date_post_shift')
+        .withColumn(
+            'timestamps_all',
+            udf_get_all_timestamps(f.col('sorted_timestamp_array'), f.lit(config['seconds_divisor']))
+        )
+    )
+    
+    for item in config['list_data_columns']:
+        sdf_arrays = (
+            sdf_arrays
+            .withColumn(
+                item + '_and_nans',
+                udf_locate_nans(f.col('sorted_timestamp_array'), f.col('timestamps_all'), f.col('sorted_' + item + '_array'))
+            )
+        )
+
+    for item in config['list_data_columns']:
+        sdf_arrays = (
+            sdf_arrays
+            .withColumn(
+                item + '_nan_count',
+                udf_count_nans_in_array(f.col(item + '_and_nans'))
+            )
+        )
+
+    sdf_arrays = sdf_arrays.withColumn('nan_count_full_day', f.col('return_nan_count'))
+    for item in config['list_data_columns']:
+        sdf_arrays = sdf_arrays.drop(item + '_nan_count')
+
+    sdf_arrays.write.mode('overwrite').parquet(config['directory_output'] + '/' + config['filename_full_day_nans'])
+    spark.stop()
