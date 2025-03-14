@@ -23,6 +23,11 @@ config = {
     'cutoff_max_consec_nans' : 2,
     'cutoff_total_nan_count' : 5,
 
+    'shuffle_random_seed' : 42,
+    'train_val_test_split' : [0.7, 0.15, 0.15],
+    'shuffle_X_train_and_val' : True,
+
+
     'directory_output' : '/home/emily/Desktop/projects/test/badass-data-science/badassdatascience/forecasting/deep_learning/forex/output',
     'filename_candlesticks_query_results' : 'candlesticks_query_results.parquet',
     'filename_timezone_added' : 'candlesticks_timezone_added.parquet',
@@ -44,6 +49,8 @@ config = {
     'filename_scaling_stats' : 'spark_scaling_stats.parquet',
     'filename_forward_filled' : 'spark_forward_filled',
     'filename_scaled' : 'spark_scaled',
+    'filename_final_pandas_df' : 'pandas_final_df.parquet',
+    'filename_numpy_final_dict' : 'dict_final_numpy.pickled',
     
     'spark_config' : [
         ('spark.executor.memory', '100g'),
