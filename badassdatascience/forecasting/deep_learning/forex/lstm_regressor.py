@@ -94,8 +94,8 @@ M_val = train_val_test_dict['val']['X']
 #
 # get y
 #
-y = train_val_test_dict['train']['y'][:, 3]   # hard coded
-y_val = train_val_test_dict['val']['y'][:, 3]   # hard coded
+y = train_val_test_dict['train']['y'][:, 3]   # hard coded - FIX
+y_val = train_val_test_dict['val']['y'][:, 3]   # hard coded - FIX
 
 print()
 print(M.shape)
