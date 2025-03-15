@@ -97,18 +97,25 @@ M_val = train_val_test_dict['val']['X']
 y = train_val_test_dict['train']['y'][:, 3]   # hard coded - FIX
 y_val = train_val_test_dict['val']['y'][:, 3]   # hard coded - FIX
 
-print()
-print(M.shape)
-print(M_val.shape)
-print(y.shape)
-print(y_val.shape)
-print()
+y = np.mean(y, axis = 1)
+y_val = np.mean(y_val, axis = 1)
+
+# print()
+# print(M.shape)
+# print(M_val.shape)
+# print(y.shape)
+# print(y_val.shape)
+# print()
+
+# print(y)
+# print(len(y))
+# import sys; sys.exit(0)
 
 #
 # calculate input and output matrix/array shapes
 #
 config['calculated_input_shape'] = (M.shape[1], M.shape[2])
-config['calculated_number_of_outputs'] = y.shape[1]
+config['calculated_number_of_outputs'] = 1 #y.shape[1]
 
 #
 # save configuration
