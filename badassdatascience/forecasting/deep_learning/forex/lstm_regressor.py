@@ -33,6 +33,31 @@ from numba import cuda
 #
 from config_lstm_regressor import *
 
+
+################################ TEMP
+
+feature_name_to_index = {
+    'cos_24': 5,
+    'lhc_mean': 3,
+    'return': 0,
+    'sin_24': 4,
+    'volatility': 1,
+    'volume': 2,
+}
+
+feature_name_to_use = 'lhc_mean'
+
+index_y_feature = feature_name_to_index[feature_name_to_use])
+
+################################ END TEMP
+
+
+
+
+
+
+
+
 #
 # Reset device
 #
@@ -94,8 +119,8 @@ M_val = train_val_test_dict['val']['X']
 #
 # get y
 #
-y_forward_train = train_val_test_dict['train']['y'][:, :, 3]   # hard coded - FIX
-y_forward_val = train_val_test_dict['val']['y'][:, :, 3]   # hard coded - FIX
+y_forward_train = train_val_test_dict['train']['y'][:, :, index_y_feature]   # hard coded - FIX
+y_forward_val = train_val_test_dict['val']['y'][:, :, index_y_feature]   # hard coded - FIX
 
 y_temp_train = np.mean(y_forward_train, axis = 1)
 y_temp_val = np.mean(y_forward_val, axis = 1)
