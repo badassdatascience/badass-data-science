@@ -85,8 +85,9 @@ class DataPrepTimeseries():
         plt.plot(y_range, y_test, label = 'Known Y', color = colors[1])
         
         plt.plot(y_range, [y_summary_statistic_value] * self.config['n_forward'], label = static_function_name + '(Known Y)', color = colors[2])
+
         if y_predicted != None:
-            if len(model_result.y_predicted[0]) == 1:
+            if str(type(y_predicted[0])).find('numpy.float') >= 0:
                 y_predicted_value = y_predicted[0]
                 plt.plot(y_range, [y_predicted_value] * self.config['n_forward'], label = 'Predicted Mean Y', color = colors[3])
         

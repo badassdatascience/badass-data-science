@@ -47,7 +47,7 @@ feature_name_to_index = {
 
 feature_name_to_use = 'lhc_mean'
 
-index_y_feature = feature_name_to_index[feature_name_to_use])
+index_y_feature = feature_name_to_index[feature_name_to_use]
 
 ################################ END TEMP
 
@@ -80,7 +80,7 @@ set_seed(config['tensorflow_seed'])
 #with open('pipeline_components/output/queries/reduced_train_val_test_309457bc-a227-4332-8c0b-2cf5dd38749c.pickled', 'rb') as fff:
 #    train_val_test_dict = pickle.load(fff)
 
-with open('/home/emily/Desktop/projects/test/badass-data-science/badassdatascience/forecasting/deep_learning/forex/output/dict_final_numpy.pickled', 'rb') as fff:
+with open('/home/emily/Desktop/projects/test/badass-data-science/badassdatascience/forecasting/deep_learning/forex/output/n_back_equals_180/dict_final_numpy.pickled', 'rb') as fff:
     train_val_test_dict = pickle.load(fff)['matrices']
     
 #

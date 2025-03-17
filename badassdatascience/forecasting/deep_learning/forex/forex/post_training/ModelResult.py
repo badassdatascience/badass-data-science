@@ -81,6 +81,7 @@ class ModelResult():
         plt.close()
 
     def predict(self, set_name = 'test'):
+        ts = self.train_val_test_data
         X_to_predict_y_response_for = ts.matrices[set_name]['X']
         self.y_predicted = self.model.predict(X_to_predict_y_response_for)
 

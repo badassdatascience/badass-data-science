@@ -46,15 +46,15 @@ config = {
     # Batch normalization
     #
     'use_batch_normalization_layers' : True,
-    'batch_normalization_momentum' : 0.9,
+    'batch_normalization_momentum' : 0.7, # 0.9,
 
     #
     # Dropout
     #
     'use_dropout_layers' : True,
-    'dense_dropout_rate' : 0.25,
-    'rnn_dropout_rate' : 0.25,
-    'rnn_recurrent_dropout_rate' : 0.2,
+    'dense_dropout_rate' : 0.1, # 0.25,
+    'rnn_dropout_rate' : 0.1, # 0.25,
+    'rnn_recurrent_dropout_rate' : 0.1, # 0.2,
 
     #
     # Set seed(s) for repeatability.
