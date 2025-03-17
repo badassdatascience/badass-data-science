@@ -94,28 +94,47 @@ M_val = train_val_test_dict['val']['X']
 #
 # get y
 #
-y = train_val_test_dict['train']['y'][:, 3]   # hard coded - FIX
-y_val = train_val_test_dict['val']['y'][:, 3]   # hard coded - FIX
+y_forward_train = train_val_test_dict['train']['y'][:, :, 3]   # hard coded - FIX
+y_forward_val = train_val_test_dict['val']['y'][:, :, 3]   # hard coded - FIX
 
-y = np.mean(y, axis = 1)
-y_val = np.mean(y_val, axis = 1)
+y_temp_train = np.mean(y_forward_train, axis = 1)
+y_temp_val = np.mean(y_forward_val, axis = 1)
 
-# print()
-# print(M.shape)
-# print(M_val.shape)
-# print(y.shape)
-# print(y_val.shape)
-# print()
+y = np.expand_dims(y_temp_train, axis = 1)
+y_val = np.expand_dims(y_temp_val, axis = 1)
 
-# print(y)
-# print(len(y))
-# import sys; sys.exit(0)
+#  Reduce  #
+#step = 2
+#M = M[::step, :, :]
+#M_val = M_val[::step, :, :]
+#y = y[::step, :]
+#y_val = y_val[::step, :]
+
+
+print()
+print(M.shape)
+print(M_val.shape)
+print()
+print(y_forward_train.shape)
+print(y_forward_val.shape)
+print()
+print(y_forward_train.shape[1])
+print(y_forward_val.shape[1])
+print()
+print(y_temp_train.shape)
+print(y_temp_val.shape)
+print()
+print(y.shape)
+print(y_val.shape)
+print()
+#import sys; sys.exit(0)
 
 #
 # calculate input and output matrix/array shapes
 #
 config['calculated_input_shape'] = (M.shape[1], M.shape[2])
-config['calculated_number_of_outputs'] = 1 #y.shape[1]
+config['calculated_number_of_outputs'] = y.shape[1]
+
 
 #
 # save configuration
