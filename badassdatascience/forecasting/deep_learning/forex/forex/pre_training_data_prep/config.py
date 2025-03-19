@@ -1,7 +1,6 @@
 
 config = {
     'database_name' : 'django',
-    'dag_id' : 'NEW_prepare_forex_data',
 
     'list_data_columns' : ['return', 'volatility', 'volume', 'lhc_mean'],
     'list_data_columns_no_scale' : ['sin_24', 'cos_24'],

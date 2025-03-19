@@ -7,7 +7,7 @@ def add_timezone_information(**config):
     
     pdf = (
         pd.read_parquet(
-            config['directory_output'] + '/' + config['filename_candlesticks_query_results'],
+            config['directory_output'] + '/' + config['dag_run'].run_id + '/' + config['filename_candlesticks_query_results'],
         )
         .sort_values(by = 'timestamp')
     )
@@ -15,7 +15,7 @@ def add_timezone_information(**config):
     pdf['datetime_tz'] = [datetime.datetime.fromtimestamp(x, tz) for x in pdf['timestamp']]
     pdf['weekday_tz'] = [datetime.datetime.weekday(x) for x in pdf['datetime_tz']]
     pdf['hour_tz'] = [x.hour for x in pdf['datetime_tz']]
-    output_filename = config['directory_output'] + '/' + config['filename_timezone_added']
+    output_filename = config['directory_output'] + '/' + config['dag_run'].run_id + '/' + config['filename_timezone_added']
     pdf.to_parquet(output_filename)
 
 

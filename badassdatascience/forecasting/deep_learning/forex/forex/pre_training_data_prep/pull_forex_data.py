@@ -16,5 +16,5 @@ def pull_forex_data(**config):
         .sort_values(by = ['timestamp'])
     )
     
-    pdf.to_parquet(config['directory_output'] + '/' + config['filename_candlesticks_query_results'])
+    pdf.to_parquet(config['directory_output'] + '/' + config['dag_run'].run_id + '/' + config['filename_candlesticks_query_results'])
     
