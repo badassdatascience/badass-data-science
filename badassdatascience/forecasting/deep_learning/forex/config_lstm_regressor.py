@@ -46,15 +46,15 @@ config = {
     # Batch normalization
     #
     'use_batch_normalization_layers' : True,
-    'batch_normalization_momentum' : 0.7, # 0.9,
+    'batch_normalization_momentum' : 0.9,
 
     #
     # Dropout
     #
     'use_dropout_layers' : True,
-    'dense_dropout_rate' : 0.1, # 0.25,
-    'rnn_dropout_rate' : 0.1, # 0.25,
-    'rnn_recurrent_dropout_rate' : 0.1, # 0.2,
+    'dense_dropout_rate' : 0.25,
+    'rnn_dropout_rate' : 0.25,
+    'rnn_recurrent_dropout_rate' : 0.2,
 
     #
     # Set seed(s) for repeatability.
@@ -68,8 +68,8 @@ config = {
     #
     # Neural network architecture
     #
-    'number_of_cells_per_RNN_layer_list' : [200, 200, 200, 200, 200, 200],
-    'number_of_cells_per_dense_layer_list' : [],
+    'number_of_cells_per_RNN_layer_list' : [200, 200, 200, 200, 200, 100, 100, 100],
+    'number_of_cells_per_dense_layer_list' : [100, 100, 100],
 
     #
     # Activation functions
