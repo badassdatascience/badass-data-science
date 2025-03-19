@@ -120,7 +120,33 @@ with DAG(
         python_callable = finalize_pandas_candlesticks,
         **common_kwargs,
     )
+
     
+    #####################
+    #   Spark portion   #
+    #####################
+
+    from forex.pre_training_data_prep.tasks.spark.task_convert_pandas_df_to_spark_df import task_convert_pandas_df_to_spark_df
+    task_spark_convert_pandas_df_to_spark_df = PythonOperator(
+        task_id = 'task_spark_convert_pandas_df_to_spark_df',
+        python_callable = task_convert_pandas_df_to_spark_df,
+        **common_kwargs,
+    )
+
+    from forex.pre_training_data_prep.tasks.spark.array_tasks import task_pivot_and_sort_arrays
+    task_spark_pivot_and_sort_arrays = PythonOperator(
+        task_id = 'task_spark_pivot_and_sort_arrays',
+        python_callable = task_pivot_and_sort_arrays,
+        **common_kwargs,
+    )
+
+    from forex.pre_training_data_prep.tasks.spark.array_tasks import task_diff_the_timestamp_arrays
+    task_spark_diff_the_timestamp_arrays = PythonOperator(
+        task_id = 'task_spark_diff_the_timestamp_arrays',
+        python_callable = task_diff_the_timestamp_arrays,
+        **common_kwargs,
+    )
+        
     
     ###############################
     #   Assemble DAG from tasks   #
@@ -128,7 +154,7 @@ with DAG(
 
     [ task_prepare_DAG_run ] >> task_pull_forex_data
     [ task_pull_forex_data ] >> task_add_timezone_information
-    [ task_add_timezone_information, task_generate_offset_map ] >> task_merge_offset_map >> task_shift_days_and_hours_as_needed >> task_finalize_pandas_candlesticks
+    [ task_add_timezone_information, task_generate_offset_map ] >> task_merge_offset_map >> task_shift_days_and_hours_as_needed >> task_finalize_pandas_candlesticks >> task_spark_convert_pandas_df_to_spark_df >> task_spark_pivot_and_sort_arrays >> task_spark_diff_the_timestamp_arrays
     
     
 #
@@ -136,6 +162,5 @@ with DAG(
 #
 if __name__ == '__main__':
     dag.test()
-
 
 
