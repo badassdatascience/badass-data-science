@@ -37,7 +37,14 @@ config = {
     'filename_conversion_to_spark' : 'spark_converted.parquet',
     'filename_pivot_and_sort' : 'spark_pivot_and_sort.parquet',
     'filename_timestamp_diff' : 'spark_timestamp_diff.parquet',
+
     'filename_full_day_nans' : 'spark_full_day_nans.parquet',
+    'filename_qa_day_has_nans' : 'spark_qa_day_has_nans.parquet',
+    'filename_qa_day_nan_counts' : 'spark_qa_day_nan_counts.parquet',
+    'filename_qa_full_day_boxplot' : 'image_qa_full_day_boxplot.png',
+    'filename_qa_full_day_boxplot_per_day' : 'image_qa_full_day_boxplot_per_day.png',
+    'filename_qa_full_day_consecutive_nans' : 'spark_qa_full_day_consecutive_nans.parquet',
+    
     'filename_post_trig' : 'spark_post_trig.parquet',
     'filename_sliding_window_space_check' : 'spark_sliding_window_space_check.parquet',
     'filename_sliding_window_QA' : 'spark_sliding_window_QA.parquet',
@@ -50,6 +57,7 @@ config = {
     'filename_scaled' : 'spark_scaled',
     'filename_final_pandas_df' : 'pandas_final_df.parquet',
     'filename_numpy_final_dict' : 'dict_final_numpy.pickled',
+
     
     'spark_config' : [
         ('spark.executor.memory', '100g'),

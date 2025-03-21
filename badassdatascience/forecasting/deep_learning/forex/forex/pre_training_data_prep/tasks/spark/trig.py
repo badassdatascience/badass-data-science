@@ -29,7 +29,7 @@ def add_trig(**config):
 
 
     spark = get_spark_session(config['spark_config'])
-    sdf_arrays = spark.read.parquet(config['directory_output'] + '/' + config['dag_run'].run_id + '/' + 'PLACEHOLDER.parquet')
+    sdf_arrays = spark.read.parquet(config['directory_output'] + '/' + config['dag_run'].run_id + '/' + config['filename_full_day_nans'])
 
     sdf_arrays = (
         sdf_arrays
