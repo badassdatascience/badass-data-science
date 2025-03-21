@@ -108,6 +108,7 @@ def task_find_full_day_nans(**config):
             )
         )
 
+    sdf_arrays = sdf_arrays.orderBy('date_post_shift')
         
     sdf_arrays.write.mode('overwrite').parquet(config['directory_output'] + '/' + config['dag_run'].run_id + '/' + config['filename_full_day_nans'])
     spark.stop()
@@ -116,23 +117,23 @@ def task_find_full_day_nans(**config):
 
 
 
-def get_max_consecutive_NaNs(a_list):
-
-    n_consec_nan_list = [0]
-    count = 0
-    is_in_nan_group = False
-    for item in np.array(a_list):
-        if np.isnan(item) or item == None:
-            is_in_nan_group = True
-            count += 1
-        if not np.isnan(item) and is_in_nan_group:
-            is_in_nan_group = False
-            n_consec_nan_list.append(count)
-            count = 0
-        
-    return max(n_consec_nan_list)
-    
-udf_get_max_consecutive_NaNs = f.udf(get_max_consecutive_NaNs, IntegerType())
+#def get_max_consecutive_NaNs(a_list):
+#
+#    n_consec_nan_list = [0]
+#    count = 0
+#    is_in_nan_group = False
+#    for item in np.array(a_list):
+#        if np.isnan(item) or item == None:
+#            is_in_nan_group = True
+#            count += 1
+#        if not np.isnan(item) and is_in_nan_group:
+#            is_in_nan_group = False
+#            n_consec_nan_list.append(count)
+#            count = 0
+#        
+#    return max(n_consec_nan_list)
+#    
+#udf_get_max_consecutive_NaNs = f.udf(get_max_consecutive_NaNs, IntegerType())
 
 
 

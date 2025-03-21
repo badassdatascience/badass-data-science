@@ -17,7 +17,7 @@ config = {
     'interval_name' : 'Minute',
 
     'retries_pull_forex_data' : 1,
-    'retry_delay_minutes_pull_forex_data' : 5,
+    'retry_delay_minutes_pull_forex_data' : 1,
 
     'cutoff_max_consec_nans' : 2,
     'cutoff_total_nan_count' : 5,

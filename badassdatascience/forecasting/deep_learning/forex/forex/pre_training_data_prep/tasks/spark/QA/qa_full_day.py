@@ -1,7 +1,9 @@
 import numpy as np
 import matplotlib.pyplot as plt
+from itertools import groupby
 
 import pyspark.sql.functions as f
+from pyspark.sql.types import IntegerType, BooleanType
 
 from utilities.spark_session import get_spark_session
 
@@ -43,8 +45,8 @@ def qa_full_day_nans(**config):
     sdf_qa.write.mode('overwrite').parquet(config['directory_output'] + '/' + run_id + '/QA/' + config['filename_qa_day_has_nans'])
 
     sdf_qa_counts = (
-        spark.read.parquet(config['directory_output'] + '/' + run_id + '/' + config['filename_full_day_nans'])
-        .select('nan_count_full_day', 'date_post_shift')
+        sdf_arrays
+        .select('date_post_shift', 'nan_count_full_day')
         .orderBy(f.col('nan_count_full_day').desc())
     )
     sdf_qa_counts.write.mode('overwrite').parquet(config['directory_output'] + '/' + run_id + '/QA/' + config['filename_qa_day_nan_counts'])
@@ -64,9 +66,35 @@ def qa_full_day_nans(**config):
 
 
 def qa_full_day_consecutive_nans(**config):
-    from forex.pre_training_data_prep.tasks.spark.nan_related_tasks import udf_get_max_consecutive_NaNs
-    from utilities.test_all_equality import udf_test_all_equality
+    #from utilities.test_all_equality import udf_test_all_equality
 
+    def test_all_equality(*a_list):
+        g = groupby(a_list)
+        return next(g, True) and not next(g, False)
+
+    udf_test_all_equality = f.udf(test_all_equality, BooleanType())
+
+    
+    def get_max_consecutive_NaNs(a_list):
+
+        n_consec_nan_list = [0]
+        count = 0
+        is_in_nan_group = False
+        for item in np.array(a_list):
+            if np.isnan(item) or item == None:
+                is_in_nan_group = True
+                count += 1
+            if not np.isnan(item) and is_in_nan_group:
+                is_in_nan_group = False
+                n_consec_nan_list.append(count)
+                count = 0
+
+        return max(n_consec_nan_list)
+
+    udf_get_max_consecutive_NaNs = f.udf(get_max_consecutive_NaNs, IntegerType())
+    
+
+    
     spark = get_spark_session(config['spark_config'])
     run_id = config['dag_run'].run_id
     sdf_arrays = spark.read.parquet(config['directory_output'] + '/' + run_id + '/' + config['filename_full_day_nans'])
