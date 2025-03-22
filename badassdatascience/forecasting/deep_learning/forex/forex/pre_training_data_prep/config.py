@@ -50,6 +50,7 @@ config = {
     'filename_sliding_window_space_check' : 'spark_sliding_window_space_check.parquet',
     'filename_sliding_window_QA' : 'spark_sliding_window_QA.parquet',
     'filename_sliding_window' : 'spark_sliding_window.parquet',
+    'filename_sliding_window_positions_QA' : 'spark_sliding_window_positions_QA.parquet',
 
     'filename_explode_array' : 'spark_explode_array.parquet',
     'filename_post_sw_nans' : 'spark_post_sw_nans.parquet',

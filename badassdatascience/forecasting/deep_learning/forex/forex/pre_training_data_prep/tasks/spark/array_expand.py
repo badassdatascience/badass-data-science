@@ -1,11 +1,12 @@
-import pyspark.sql.functions as f
-
-from utilities.spark_session import get_spark_session
 
 def task_expand_arrays(**config):
 
+    import pyspark.sql.functions as f
+    
+    from utilities.spark_session import get_spark_session
     spark = get_spark_session(config['spark_config'])
-    sdf_arrays = spark.read.parquet(config['directory_output'] + '/' + config['filename_sliding_window'])
+    
+    sdf_arrays = spark.read.parquet(config['directory_output'] + '/' + config['dag_run'].run_id + '/' + config['filename_sliding_window'])
 
     list_to_arrays_zip = ['sw_timestamp']
     list_to_arrays_zip.extend(['sw_' + x for x in config['list_data_columns']])
@@ -33,6 +34,6 @@ def task_expand_arrays(**config):
         .orderBy('timestamp')
     )
 
-    sdf_arrays.write.mode('overwrite').parquet(config['directory_output'] + '/' + config['filename_explode_array'])
+    sdf_arrays.write.mode('overwrite').parquet(config['directory_output'] + '/' + config['dag_run'].run_id + '/' + config['filename_explode_array'])
 
     spark.stop()
