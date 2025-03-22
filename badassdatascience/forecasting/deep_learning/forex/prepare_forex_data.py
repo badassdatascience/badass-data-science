@@ -203,6 +203,13 @@ with DAG(
         python_callable = task_expand_arrays,
         **common_kwargs,
     )
+
+    from forex.pre_training_data_prep.tasks.spark.task_deal_with_post_sliding_window_NaNs import deal_with_post_sliding_window_nans
+    task_spark_deal_with_post_sliding_window_nans = PythonOperator(
+        task_id = 'task_spark_deal_with_post_sliding_window_nans',
+        python_callable = deal_with_post_sliding_window_nans,
+        **common_kwargs,
+    )
     
     
     ###############################
@@ -213,7 +220,7 @@ with DAG(
 
     [ task_pull_forex_data ] >> task_add_timezone_information
 
-    [ task_add_timezone_information, task_generate_offset_map ] >> task_merge_offset_map >> task_shift_days_and_hours_as_needed >> task_finalize_pandas_candlesticks >> task_spark_convert_pandas_df_to_spark_df >> task_spark_pivot_and_sort_arrays >> task_spark_diff_the_timestamp_arrays >> task_spark_find_full_day_nans >> task_spark_add_trig >> task_spark_test_window_space >> task_spark_do_sliding_window >> task_spark_expand_arrays
+    [ task_add_timezone_information, task_generate_offset_map ] >> task_merge_offset_map >> task_shift_days_and_hours_as_needed >> task_finalize_pandas_candlesticks >> task_spark_convert_pandas_df_to_spark_df >> task_spark_pivot_and_sort_arrays >> task_spark_diff_the_timestamp_arrays >> task_spark_find_full_day_nans >> task_spark_add_trig >> task_spark_test_window_space >> task_spark_do_sliding_window >> task_spark_expand_arrays >> task_spark_deal_with_post_sliding_window_nans
 
     [ task_spark_find_full_day_nans ] >> task_QA_full_day_nans
     [ task_spark_find_full_day_nans ] >> task_QA_full_day_consecutive_nans
