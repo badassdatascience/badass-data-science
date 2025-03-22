@@ -40,7 +40,7 @@ config = {
     # If so, what value?
     #
     'use_variable_learning_rate' : True,
-    'learning_rate' : 0.001,
+    'learning_rate' : 0.0005,
 
     #
     # Batch normalization
