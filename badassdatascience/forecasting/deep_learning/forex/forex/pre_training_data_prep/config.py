@@ -46,9 +46,11 @@ config = {
     'filename_qa_full_day_consecutive_nans' : 'spark_qa_full_day_consecutive_nans.parquet',
     
     'filename_post_trig' : 'spark_post_trig.parquet',
+
     'filename_sliding_window_space_check' : 'spark_sliding_window_space_check.parquet',
     'filename_sliding_window_QA' : 'spark_sliding_window_QA.parquet',
     'filename_sliding_window' : 'spark_sliding_window.parquet',
+
     'filename_explode_array' : 'spark_explode_array.parquet',
     'filename_post_sw_nans' : 'spark_post_sw_nans.parquet',
     'filename_post_nan_filters' : 'spark_post_nan_filters.parquet',
