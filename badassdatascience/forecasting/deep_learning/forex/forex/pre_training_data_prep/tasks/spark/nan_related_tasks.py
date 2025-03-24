@@ -8,19 +8,6 @@ from pyspark.sql.types import ArrayType, IntegerType, FloatType, BooleanType
 from utilities.spark_session import get_spark_session
 
 
-##https://stackoverflow.com/questions/41190852/most-efficient-way-to-forward-fill-nan-values-in-numpy-array
-def forward_fill(values_array):
-    arr = np.array([values_array])
-    mask = np.isnan(arr)
-    idx = np.where(~mask, np.arange(mask.shape[1]), 0)
-    np.maximum.accumulate(idx, axis = 1, out = idx)
-    arr[mask] = arr[np.nonzero(mask)[0], idx[mask]]
-    to_return = list([float(x) for x in arr[0]])
-    return to_return
-
-udf_forward_fill = f.udf(forward_fill, ArrayType(FloatType()))
-
-
 def task_find_full_day_nans(**config):
 
     def get_all_timestamps(timestamp_array, seconds_divisor):
@@ -155,7 +142,7 @@ def plot_post_sw_nans(**config):
     plt.boxplot(list_total_nan_count, widths = 0.9)
     plt.ylim([-2, 10])
 
-    plt.show()
+    plt.savefig(config['directory_output'] + '/' + config['dag_run'].run_id + '/QA/' + 'post_sliding_window_nans.png')  # MOVE THIS TO CONFIG
     plt.close()
 
     spark.stop()
@@ -170,11 +157,27 @@ def filter_by_nan_counts(**config):
         .drop('max_consec_nans', 'total_nan_count')
     )
 
-    sdf_arrays.write.mode('overwrite').parquet(config['directory_output'] + '/' + config['filename_post_nan_filters'])
+    sdf_arrays.write.mode('overwrite').parquet(config['directory_output'] + '/' + config['dag_run'].run_id + '/' + config['filename_post_nan_filters'])
     spark.stop()
 
 
 def forward_fill_it_all(**config):
+
+    import pyspark.sql.functions as f
+    from pyspark.sql.types import ArrayType, FloatType
+    
+    ##https://stackoverflow.com/questions/41190852/most-efficient-way-to-forward-fill-nan-values-in-numpy-array
+    def forward_fill(values_array):
+        arr = np.array([values_array])
+        mask = np.isnan(arr)
+        idx = np.where(~mask, np.arange(mask.shape[1]), 0)
+        np.maximum.accumulate(idx, axis = 1, out = idx)
+        arr[mask] = arr[np.nonzero(mask)[0], idx[mask]]
+        to_return = list([float(x) for x in arr[0]])
+        return to_return
+
+    udf_forward_fill = f.udf(forward_fill, ArrayType(FloatType()))
+
     spark = get_spark_session(config['spark_config'])
     sdf_arrays = spark.read.parquet(config['directory_output'] + '/' + config['dag_run'].run_id + '/' + config['filename_scaling_stats'])
 
