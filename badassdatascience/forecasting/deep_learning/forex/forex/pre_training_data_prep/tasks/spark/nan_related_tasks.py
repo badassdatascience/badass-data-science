@@ -142,7 +142,7 @@ def plot_post_sw_nans(**config):
     plt.boxplot(list_total_nan_count, widths = 0.9)
     plt.ylim([-2, 10])
 
-    plt.savefig(config['directory_output'] + '/' + config['dag_run'].run_id + '/QA/' + 'post_sliding_window_nans.png')  # MOVE THIS TO CONFIG
+    plt.savefig(config['directory_output'] + '/' + config['dag_run'].run_id + '/QA/' + config['filename_post_sw_plot'])
     plt.close()
 
     spark.stop()

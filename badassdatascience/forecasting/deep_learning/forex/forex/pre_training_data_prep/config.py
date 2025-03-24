@@ -8,7 +8,12 @@ config = {
     'n_back' : 180,
     'n_forward' : 30,
     'offset' : 1,
-    'n_step' : 10,
+    'n_step' : 10,   # investigate this
+
+    'y_feature_to_predict' : 'lhc_mean',
+
+    'use_n_step_in_matrix_prep' : True,
+    'n_step_in_matrix_prep' : 5,  # and investigate this
     
     'tz_name' : 'US/Eastern',  # DON'T change this!
     
@@ -55,6 +60,7 @@ config = {
     'filename_explode_array' : 'spark_explode_array.parquet',
     'filename_post_sw_nans' : 'spark_post_sw_nans.parquet',
     'filename_post_nan_filters' : 'spark_post_nan_filters.parquet',
+    'filename_post_sw_plot' : 'post_sliding_window_nans.png',
     'filename_scaling_stats' : 'spark_scaling_stats.parquet',
     'filename_forward_filled' : 'spark_forward_filled',
     'filename_scaled' : 'spark_scaled',

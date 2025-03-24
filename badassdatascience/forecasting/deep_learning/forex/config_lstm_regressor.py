@@ -31,7 +31,7 @@ config = {
     'uid_data' : uid_data,
     'uid_training' : uid_training,
 
-    'y_forward_set' : 'y_forward_lhc_mean',
+    #'y_forward_set' : 'y_forward_lhc_mean',
     
     'data_source_path' : temp_directory + '/output',
            
@@ -40,7 +40,7 @@ config = {
     # If so, what value?
     #
     'use_variable_learning_rate' : True,
-    'learning_rate' : 0.0005,
+    'learning_rate' : 0.001,
 
     #
     # Batch normalization

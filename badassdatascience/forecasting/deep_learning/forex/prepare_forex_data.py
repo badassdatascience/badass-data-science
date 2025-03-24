@@ -246,7 +246,13 @@ with DAG(
         **common_kwargs,
     )
 
-    
+    from forex.pre_training_data_prep.tasks.NumPy_and_Pandas.final_RNN_prep import final_RNN_prep
+    task_final_RNN_prep = PythonOperator(
+        task_id = 'task_final_RNN_prep',
+        python_callable = final_RNN_prep,
+        **common_kwargs,
+    )
+        
     
     ###############################
     #   Assemble DAG from tasks   #
@@ -256,7 +262,7 @@ with DAG(
 
     [ task_pull_forex_data ] >> task_add_timezone_information
 
-    [ task_add_timezone_information, task_generate_offset_map ] >> task_merge_offset_map >> task_shift_days_and_hours_as_needed >> task_finalize_pandas_candlesticks >> task_spark_convert_pandas_df_to_spark_df >> task_spark_pivot_and_sort_arrays >> task_spark_diff_the_timestamp_arrays >> task_spark_find_full_day_nans >> task_spark_add_trig >> task_spark_test_window_space >> task_spark_do_sliding_window >> task_spark_expand_arrays >> task_spark_deal_with_post_sliding_window_nans >> task_spark_filter_by_nan_counts >> task_spark_compute_scaling_statistics_for_later_use >> task_spark_forward_fill_it_all >> task_spark_properly_scale_it_all
+    [ task_add_timezone_information, task_generate_offset_map ] >> task_merge_offset_map >> task_shift_days_and_hours_as_needed >> task_finalize_pandas_candlesticks >> task_spark_convert_pandas_df_to_spark_df >> task_spark_pivot_and_sort_arrays >> task_spark_diff_the_timestamp_arrays >> task_spark_find_full_day_nans >> task_spark_add_trig >> task_spark_test_window_space >> task_spark_do_sliding_window >> task_spark_expand_arrays >> task_spark_deal_with_post_sliding_window_nans >> task_spark_filter_by_nan_counts >> task_spark_compute_scaling_statistics_for_later_use >> task_spark_forward_fill_it_all >> task_spark_properly_scale_it_all >> task_final_RNN_prep
 
     [ task_spark_find_full_day_nans ] >> task_QA_full_day_nans
     [ task_spark_find_full_day_nans ] >> task_QA_full_day_consecutive_nans

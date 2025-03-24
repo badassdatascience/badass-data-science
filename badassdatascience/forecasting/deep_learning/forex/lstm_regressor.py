@@ -12,7 +12,7 @@ import json
 
 import numpy as np
 
-from numpy.random import seed
+from numpy.random import seed   # not sure this is necessary
 
 import tensorflow
 from tensorflow.random import set_seed
@@ -34,29 +34,6 @@ from numba import cuda
 from config_lstm_regressor import *
 
 
-################################ TEMP
-
-feature_name_to_index = {
-    'cos_24': 5,
-    'lhc_mean': 3,
-    'return': 0,
-    'sin_24': 4,
-    'volatility': 1,
-    'volume': 2,
-}
-
-feature_name_to_use = 'lhc_mean'
-
-index_y_feature = feature_name_to_index[feature_name_to_use]
-
-################################ END TEMP
-
-
-
-
-
-
-
 
 #
 # Reset device
@@ -67,21 +44,15 @@ device.reset()
 #
 # set seeds
 #
-seed(config['numpy_seed'])
+seed(config['numpy_seed'])  # not sure this is necessary
 set_seed(config['tensorflow_seed'])
 
 #
 # Load data
 #
-#with open(config['data_source_path'] + '/' + uid_data + '_train_val_test_dict.pickled', 'rb') as f:
-#with open('output/booger_median.pickled', 'rb') as f:
-#    train_val_test_dict = pickle.load(f)
 
-#with open('pipeline_components/output/queries/reduced_train_val_test_309457bc-a227-4332-8c0b-2cf5dd38749c.pickled', 'rb') as fff:
-#    train_val_test_dict = pickle.load(fff)
-
-with open('/home/emily/Desktop/projects/test/badass-data-science/badassdatascience/forecasting/deep_learning/forex/output/n_back_equals_180/dict_final_numpy.pickled', 'rb') as fff:
-    train_val_test_dict = pickle.load(fff)['matrices']
+with open('/home/emily/Desktop/projects/test/badass-data-science/badassdatascience/forecasting/deep_learning/forex/output/manual__2025-03-24T16:50:15.064650+00:00/dict_final_numpy.pickled', 'rb') as fff:
+    train_val_test_dict = pickle.load(fff)
     
 #
 # the "train_val_test_dict" also contains this information
@@ -102,31 +73,21 @@ with open('/home/emily/Desktop/projects/test/badass-data-science/badassdatascien
 # Investigated, and implemented "validation_data = (M_val, y_val)"
 # in model fit call. If it works, I will remove this comment.
 #
-# M = train_val_test_dict['train']['M']
-# #y = train_val_test_dict['train']['y_forward']
-# y = train_val_test_dict['train']['y']
-# M_val = train_val_test_dict['val']['M']
-# #y_val = train_val_test_dict['val']['y_forward']
-# y_val = train_val_test_dict['val']['y']
 
 
 #
 # get X
 #
-M = train_val_test_dict['train']['X']
-M_val = train_val_test_dict['val']['X']
+M = train_val_test_dict['matrices']['train']['X']
+M_val = train_val_test_dict['matrices']['val']['X']
 
 #
 # get y
 #
-y_forward_train = train_val_test_dict['train']['y'][:, :, index_y_feature]   # hard coded - FIX
-y_forward_val = train_val_test_dict['val']['y'][:, :, index_y_feature]   # hard coded - FIX
+y = train_val_test_dict['y_stats']['train']['median']
+y_val = train_val_test_dict['y_stats']['val']['median']
 
-y_temp_train = np.mean(y_forward_train, axis = 1)
-y_temp_val = np.mean(y_forward_val, axis = 1)
 
-y = np.expand_dims(y_temp_train, axis = 1)
-y_val = np.expand_dims(y_temp_val, axis = 1)
 
 #  Reduce  #
 #step = 2
@@ -140,19 +101,10 @@ print()
 print(M.shape)
 print(M_val.shape)
 print()
-print(y_forward_train.shape)
-print(y_forward_val.shape)
-print()
-print(y_forward_train.shape[1])
-print(y_forward_val.shape[1])
-print()
-print(y_temp_train.shape)
-print(y_temp_val.shape)
-print()
 print(y.shape)
 print(y_val.shape)
 print()
-#import sys; sys.exit(0)
+import sys; sys.exit(0)
 
 #
 # calculate input and output matrix/array shapes
