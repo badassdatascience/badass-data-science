@@ -9,6 +9,8 @@ def final_RNN_prep(**config):
     dict_results = {}
     
     pdf = pd.read_parquet(config['directory_output'] + '/' + config['dag_run'].run_id + '/' + config['filename_scaled'])
+
+    
     pdf.columns = [x.replace('_scaled', '').replace('_ff', '') for x in pdf.columns]
     
     item_list = []
@@ -105,7 +107,39 @@ def final_RNN_prep(**config):
         }
 
     dict_results['y_stats'] = dict_y_stats
+    
+    #
+    # trinary y split, for classification
+    #
+    # this should probably be computed before the reduction in rows
+    #
+    for item in dict_y_stats.keys():
+        old = np.expand_dims(dict_results['matrices'][item]['X'][:, -1, index_y_feature], axis = 1)
+        new = dict_y_stats[item]['mean']
+        percent_change = ((new - old) / old) * 100.
+        dict_y_stats[item]['percent_change_to_mean'] = percent_change
+    
+    lower_tercile_cutoff = np.percentile(dict_y_stats['train']['percent_change_to_mean'], 100./3., axis = 0)[0]
+    upper_tercile_cutoff = np.percentile(dict_y_stats['train']['percent_change_to_mean'], 200./3., axis = 0)[0]
 
+    trinary_classes = {}
+    for item in dict_y_stats.keys():
+        q = dict_y_stats[item]['percent_change_to_mean'] < lower_tercile_cutoff
+        r = (lower_tercile_cutoff <= dict_y_stats[item]['percent_change_to_mean']) & (dict_y_stats[item]['percent_change_to_mean'] <= upper_tercile_cutoff)
+        s = upper_tercile_cutoff < dict_y_stats[item]['percent_change_to_mean']
+        
+        M = np.zeros([q.shape[0], 3])
+        M[:, 0] = q[:, 0]
+        M[:, 1] = r[:, 0]
+        M[:, 2] = s[:, 0]
+    
+        trinary_classes[item] = M
+
+    dict_results['trinary_classes'] = trinary_classes
+    
+    #
+    # save
+    #
     with open(config['directory_output'] + '/' + config['dag_run'].run_id + '/' + config['filename_numpy_final_dict'], 'wb') as fff:
         pickle.dump(dict_results, fff)
     
