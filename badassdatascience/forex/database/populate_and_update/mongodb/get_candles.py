@@ -68,19 +68,6 @@ headers = {
     'Accept-Datetime-Format' : config['oanda_date_time_format'],
 }
 
-#
-# database
-#
-def get_database():
-    username = '****'
-    password = '****'
-    database = 'forex'
-    connection_string = 'mongodb://' + username + ':' + password + '@127.0.0.1/' + database
-    client = MongoClient(connection_string)
-    return client['forex']
-
-db = get_database()
-collection = db['bronze_candlesticks']
 
 
 #
@@ -112,43 +99,94 @@ def deal_with_candlestick_format_and_time(candle):
 #
 # iterate through the instruments
 #
-insert_many_list = []
+if False:
+    insert_many_list = []
+    for instrument in instrument_list:
 
-for instrument in instrument_list:
+        # initialize per instrument
+        finished = False
+        end_date = end_date_original
 
-    # initialize per instrument
-    finished = False
-    end_date = end_date_original
+        # loop through the timestamp ranges for each set of n=count values
+        while not finished:
 
-    # loop through the timestamp ranges for each set of n=count values
-    while not finished:
+            # retrieve the instrument candlesticks from the Oanda server
+            rj = get_instrument_candlesticks(instrument, count, price_types, granularity, end_date)        
+            candlesticks = rj['candles']
 
-        # retrieve the instrument candlesticks from the Oanda server
-        rj = get_instrument_candlesticks(instrument, count, price_types, granularity, end_date)        
-        candlesticks = rj['candles']
+            # deal with timestamps and time-related content
+            date_list = []
+            for candle in candlesticks:
+                deal_with_candlestick_format_and_time(candle)
+                date_list.append(candle['time'])
 
-        # deal with timestamps and time-related content
-        date_list = []
-        for candle in candlesticks:
-            deal_with_candlestick_format_and_time(candle)
-            date_list.append(candle['time'])
+            rj['timestamp_int_min'] = min(date_list)
+            rj['timestamp_int_max'] = max(date_list)
 
-        rj['timestamp_int_min'] = min(date_list)
-        rj['timestamp_int_max'] = max(date_list)
+            insert_many_list.append(rj)
 
-        # Are we done with the current instrument?
-        if len(date_list) < count:
-            finished = True
+            # Are we done with the current instrument?
+            if len(date_list) < count:
+                finished = True
+
+            # prepare for the next iteration
+            end_date = rj['timestamp_int_min'] - 0.1
+
+    with open(output_file, 'w') as f:
+        json.dump(insert_many_list, f, indent = 2)
+
+else:
+    with open(output_file, 'r') as f:
+        insert_many_list = json.load(f)
+
+    
+# a_dict_list = []
+# for item in insert_many_list:
+#     instrument = item['instrument']
+#     granularity = item['granularity']
+#     candles_list = item['candles']
+#     for candle in candles_list:
+#         candle['instrument'] = instrument
+#         candle['granularity'] = granularity
+#     a_dict_list.append(candle)
+
+# print()
+# print(a_dict_list[0])
+# print()
+# print(a_dict_list[-1])
+# print()
         
-        # prepare for the next iteration
-        end_date = rj['timestamp_int_min'] - 0.1
         
-        insert_many_list.append(rj)
+# #
+# # load into database
+# #
 
-#
-# load into database
-#
-collection.insert_many(insert_many_list)
+# #collection.insert_many(insert_many_list)
+
+# #
+# # database
+# #
+# def get_database():
+#     #username = '****'
+#     #password = '****'
+#     #database = 'forex'
+#     connection_string = 'mongodb://localhost' #  + username + ':' + password + '@127.0.0.1/' + database
+#     conn = MongoClient(connection_string)
+#     return conn
+
+# db = get_database()['forex']
+
+# db.create_collection(
+#     'forex',
+#     timeseries = {
+#         'timeField': 'time_str',
+#         'metaField': ['instrument', 
+#         'granularity': 'days',
+#     }
+# )
+
+# print(db)
+
 
 
 
