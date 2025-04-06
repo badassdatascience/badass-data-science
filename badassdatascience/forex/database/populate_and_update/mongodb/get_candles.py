@@ -10,6 +10,7 @@ import datetime
 import time
 import argparse
 import pytz
+from pymongo import MongoClient
 
 #
 # declare command line arguments
@@ -68,6 +69,21 @@ headers = {
 }
 
 #
+# database
+#
+def get_database():
+    username = '****'
+    password = '****'
+    database = 'forex'
+    connection_string = 'mongodb://' + username + ':' + password + '@127.0.0.1/' + database
+    client = MongoClient(connection_string)
+    return client['forex']
+
+db = get_database()
+collection = db['bronze_candlesticks']
+
+
+#
 # send a request to Oanda for historical candlestick values
 #
 def get_instrument_candlesticks(instrument, count, price_types, granularity, end_date):
@@ -96,6 +112,8 @@ def deal_with_candlestick_format_and_time(candle):
 #
 # iterate through the instruments
 #
+insert_many_list = []
+
 for instrument in instrument_list:
 
     # initialize per instrument
@@ -125,4 +143,14 @@ for instrument in instrument_list:
         # prepare for the next iteration
         end_date = rj['timestamp_int_min'] - 0.1
         
+        insert_many_list.append(rj)
+
+#
+# load into database
+#
+collection.insert_many(insert_many_list)
+
+
+
+
 
