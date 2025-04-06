@@ -67,60 +67,62 @@ headers = {
     'Accept-Datetime-Format' : config['oanda_date_time_format'],
 }
 
-    
+#
+# send a request to Oanda for historical candlestick values
+#
+def get_instrument_candlesticks(instrument, count, price_types, granularity, end_date):
+    url = config['server'] + '/v3/instruments/' + instrument + '/candles?count=' + str(count) + '&price=' + price_types + '&granularity=' + granularity + '&to=' + str(end_date)
+    r = requests.get(url, headers=headers)
+    rj = r.json()
+    return rj
+
+#
+# alters the dictionary in place; not my favorite design idiom
+#
+def deal_with_candlestick_format_and_time(candle):
+    candle['time'] = int(float(candle['time']))
+    time_dt = datetime.datetime.fromtimestamp(candle['time'], tz = timezone)
+    candle['time_str'] = str(time_dt)
+    candle['weekday'] = time_dt.weekday()
+    candle['hour'] = time_dt.hour
+
+    # deal with prices that are currently string values but need to be float
+    for price_type in ['bid', 'mid', 'ask']:
+        for candlestick_component in candle[price_type].keys():
+            candle[price_type][candlestick_component] = float(candle[price_type][candlestick_component])
+
+    return None
 
 #
 # iterate through the instruments
 #
 for instrument in instrument_list:
 
-    #
     # initialize per instrument
-    #
     finished = False
     end_date = end_date_original
 
-    #
     # loop through the timestamp ranges for each set of n=count values
-    #
     while not finished:
 
-        #
         # retrieve the instrument candlesticks from the Oanda server
-        #
-        url = config['server'] + '/v3/instruments/' + instrument + '/candles?count=' + str(count) + '&price=' + price_types + '&granularity=' + granularity + '&to=' + str(end_date)
-        r = requests.get(url, headers=headers)
-        rj = r.json()
+        rj = get_instrument_candlesticks(instrument, count, price_types, granularity, end_date)        
         candlesticks = rj['candles']
 
-        #
         # deal with timestamps and time-related content
-        #
         date_list = []
         for candle in candlesticks:
-            candle['time'] = int(float(candle['time']))
-            time_dt = datetime.datetime.fromtimestamp(candle['time'], tz = timezone)
-            candle['time_str'] = str(time_dt)
-            candle['weekday'] = time_dt.weekday()
-            candle['hour'] = time_dt.hour
+            deal_with_candlestick_format_and_time(candle)
             date_list.append(candle['time'])
 
         rj['timestamp_int_min'] = min(date_list)
         rj['timestamp_int_max'] = max(date_list)
 
-        #
         # Are we done with the current instrument?
-        #
         if len(date_list) < count:
             finished = True
         
-        #
         # prepare for the next iteration
-        #
         end_date = rj['timestamp_int_min'] - 0.1
         
-
-
-
-        import pprint as pp; pp.pprint(rj)
 
