@@ -1,5 +1,5 @@
 
-# python3 get_candles.py --config-file /home/emily/Desktop/projects/test/badass-data-science/badassdatascience/forex/data/DEVELOPMENT.json --count 5000 --granularity D --output-file output_temp/booger.json --meta-output-file output_temp/booger_meta.json --now --instruments "EUR_USD,USD_CAD,USD_JPY,USD_CHF,AUD_USD,GBP_USD,NZD_USD" --price-types BAM
+# python3 get_candles.py --config-file /home/emily/Desktop/projects/test/badass-data-science/badassdatascience/forex/data/DEVELOPMENT.json --count 5000 --granularity D --output-file output_temp/D.json --now --instruments "EUR_USD,USD_CAD,USD_JPY,USD_CHF,AUD_USD,GBP_USD,NZD_USD" --price-types BAM
 
 #
 # libraries
@@ -20,7 +20,6 @@ parser.add_argument('--config-file', type=str, help='Filename of configuration f
 parser.add_argument('--count', type=int, help='Count.', required=True)
 parser.add_argument('--granularity', type=str, help='Granularity.', required=True)
 parser.add_argument('--output-file', type=str, help='Output filename.', required=True)
-parser.add_argument('--meta-output-file', type=str, help='Meta data output filename.', required=True)
 parser.add_argument('--end-date', type=int, help='End date in Unix seconds.')
 parser.add_argument('--now', action='store_true', help='Use current time.')
 parser.add_argument('--instruments', type=str, help='Comma-delimited list of instruments (with underscores).')
@@ -39,7 +38,6 @@ config_file = args.config_file
 count = args.count
 granularity = args.granularity
 output_file = args.output_file
-output_file_meta = args.meta_output_file
 end_date = args.end_date
 now = args.now
 instrument_list = args.instruments.split(',')
@@ -139,17 +137,7 @@ if True:
             # prepare for the next iteration
             end_date = rj['timestamp_int_min'] - 0.1
 
-    with open(output_file, 'w') as f:
-        json.dump(insert_many_list, f, indent = 2)
 
-else:
-    with open(output_file, 'r') as f:
-        insert_many_list = json.load(f)
-
-
-        
-
-if True:
     candlestick_dict_list = []
     for item in insert_many_list:
         instrument = item['instrument']
@@ -159,6 +147,16 @@ if True:
             candle['instrument'] = instrument
             candle['granularity'] = granularity
             candlestick_dict_list.append(candle)
+
+    with open(output_file, 'w') as f:
+        json.dump(candlestick_dict_list, f, indent = 2)
+
+else:
+    with open(output_file, 'r') as f:
+        candlestick_dict_list = json.load(f)
+
+
+import sys; sys.exit(0)
 
 
 
