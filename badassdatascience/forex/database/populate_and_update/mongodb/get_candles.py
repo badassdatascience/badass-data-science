@@ -85,21 +85,28 @@ def get_instrument_candlesticks(instrument, count, price_types, granularity, end
 def deal_with_candlestick_format_and_time(candle):
     candle['time'] = int(float(candle['time']))
     time_dt = datetime.datetime.fromtimestamp(candle['time'], tz = timezone)
-    candle['time_str'] = str(time_dt)
+    candle['time_iso'] = time_dt.isoformat()
     candle['weekday'] = time_dt.weekday()
     candle['hour'] = time_dt.hour
 
+    #
     # deal with prices that are currently string values but need to be float
+    #
+    # and reorganize them
+    #
     for price_type in ['bid', 'mid', 'ask']:
         for candlestick_component in candle[price_type].keys():
-            candle[price_type][candlestick_component] = float(candle[price_type][candlestick_component])
+            candle[price_type + '_' + candlestick_component] = float(candle[price_type][candlestick_component])
 
+    for price_type in ['bid', 'mid', 'ask']:
+        del(candle[price_type])
+            
     return None
 
 #
 # iterate through the instruments
 #
-if False:
+if True:
     insert_many_list = []
     for instrument in instrument_list:
 
@@ -139,53 +146,39 @@ else:
     with open(output_file, 'r') as f:
         insert_many_list = json.load(f)
 
-    
-# a_dict_list = []
-# for item in insert_many_list:
-#     instrument = item['instrument']
-#     granularity = item['granularity']
-#     candles_list = item['candles']
-#     for candle in candles_list:
-#         candle['instrument'] = instrument
-#         candle['granularity'] = granularity
-#     a_dict_list.append(candle)
 
-# print()
-# print(a_dict_list[0])
-# print()
-# print(a_dict_list[-1])
-# print()
         
-        
-# #
-# # load into database
-# #
+
+if True:
+    candlestick_dict_list = []
+    for item in insert_many_list:
+        instrument = item['instrument']
+        granularity = item['granularity']
+        candles_list = item['candles']
+        for candle in candles_list:
+            candle['instrument'] = instrument
+            candle['granularity'] = granularity
+            candlestick_dict_list.append(candle)
+
+
 
 # #collection.insert_many(insert_many_list)
 
-# #
-# # database
-# #
-# def get_database():
-#     #username = '****'
-#     #password = '****'
-#     #database = 'forex'
-#     connection_string = 'mongodb://localhost' #  + username + ':' + password + '@127.0.0.1/' + database
-#     conn = MongoClient(connection_string)
-#     return conn
+#
+# database
+#
+def get_database():
+    connection_string = 'mongodb://localhost'
+    conn = MongoClient(connection_string)
+    return conn
 
-# db = get_database()['forex']
+db = get_database()['forex']
+db.create_collection('forex')
 
-# db.create_collection(
-#     'forex',
-#     timeseries = {
-#         'timeField': 'time_str',
-#         'metaField': ['instrument', 
-#         'granularity': 'days',
-#     }
-# )
+db['forex'].insert_many(candlestick_dict_list)
 
-# print(db)
+        
+
 
 
 
