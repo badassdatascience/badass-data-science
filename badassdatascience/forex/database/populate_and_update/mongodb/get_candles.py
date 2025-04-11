@@ -10,6 +10,7 @@ import datetime
 import time
 import argparse
 import pytz
+import pandas as pd
 from pymongo import MongoClient
 
 #
@@ -29,6 +30,7 @@ parser.add_argument('--price-types', type=str, help='Just use \'BAM\' and don\'t
 # define fixed values
 #
 timezone = pytz.timezone('America/Toronto')
+error_retry_interval = 5
 
 #
 # parse command line arguments
@@ -73,7 +75,15 @@ headers = {
 #
 def get_instrument_candlesticks(instrument, count, price_types, granularity, end_date):
     url = config['server'] + '/v3/instruments/' + instrument + '/candles?count=' + str(count) + '&price=' + price_types + '&granularity=' + granularity + '&to=' + str(end_date)
-    r = requests.get(url, headers=headers)
+
+    worked = False
+    while not worked:
+        try:
+            r = requests.get(url, headers=headers)
+            worked = True
+        except:
+            time.sleep(error_retry_interval)
+        
     rj = r.json()
     return rj
 
@@ -95,7 +105,9 @@ def deal_with_candlestick_format_and_time(candle):
     for price_type in ['bid', 'mid', 'ask']:
         for candlestick_component in candle[price_type].keys():
             candle[price_type + '_' + candlestick_component] = float(candle[price_type][candlestick_component])
-
+        candle[price_type + '_return'] = candle[price_type + '_c'] - candle[price_type + '_o']
+        candle[price_type + '_volatility'] = candle[price_type + '_h'] - candle[price_type + '_l']
+            
     for price_type in ['bid', 'mid', 'ask']:
         del(candle[price_type])
             
@@ -148,32 +160,39 @@ if True:
             candle['granularity'] = granularity
             candlestick_dict_list.append(candle)
 
-    with open(output_file, 'w') as f:
-        json.dump(candlestick_dict_list, f, indent = 2)
+    #with open(output_file, 'w') as f:
+    #    json.dump(candlestick_dict_list, f, indent = 2)
 
 else:
-    with open(output_file, 'r') as f:
-        candlestick_dict_list = json.load(f)
+    pass
+    #with open(output_file, 'r') as f:
+    #    candlestick_dict_list = json.load(f)
 
-
-import sys; sys.exit(0)
-
-
-
-# #collection.insert_many(insert_many_list)
 
 #
-# database
+# make dataframe
 #
-def get_database():
-    connection_string = 'mongodb://localhost'
-    conn = MongoClient(connection_string)
-    return conn
+df = pd.DataFrame(candlestick_dict_list)
+df.to_parquet(output_file.replace('.json', '.parquet'))
+        
 
-db = get_database()['forex']
-db.create_collection('forex')
 
-db['forex'].insert_many(candlestick_dict_list)
+
+
+# # #collection.insert_many(insert_many_list)
+
+# #
+# # database
+# #
+# def get_database():
+#     connection_string = 'mongodb://localhost'
+#     conn = MongoClient(connection_string)
+#     return conn
+
+# db = get_database()['forex']
+# db.create_collection('forex')
+
+# db['forex'].insert_many(candlestick_dict_list)
 
         
 
