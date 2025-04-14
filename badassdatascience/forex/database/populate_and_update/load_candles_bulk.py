@@ -1,13 +1,15 @@
 """
 Given the output of the following:
 
-python3 $APP_HOME/infrastructure/r_and_d/model_building/get_candles_loop.py --config-file ../../data/DEVELOPMENT.json --count 5000 --granularity H1 --output-directory output --now --price-types BAM --instruments EUR_USD,USD_CAD,USD_JPY,GBP_USD,AUD_USD,USD_CHF,NZD_USD
+python3 $BDS_HOME/badassdatascience/forex/database/populate_and_update/get_candles_loop.py --config-file $BDS_HOME/badassdatascience/forex/data/DEVELOPMENT.json --count 5000 --granularity D --output-directory output --now --price-types BAM --instruments EUR_USD
 
 ...loads its results into the database.
 
 To run:
 
-python3 /home/emily/Desktop/projects/test/badass-data-science/badassdatascience/forecasting/deep_learning/production/initialize_database/load_candles_bulk.py --source-directory /home/emily/Desktop/projects/test/badass-data-science/badassdatascience/forecasting/deep_learning/production/candlesticks/output/loop --interval-name Minute
+cd $BDS_HOME
+
+python3 badassdatascience/forex/database/populate_and_update/load_candles_bulk.py --source-directory badassdatascience/forex/output/loop --interval-name Day
 
 """
 
@@ -21,10 +23,12 @@ import os
 import sys
 import argparse
 
-
-
-root_directory_application = os.environ['BDS_HOME'] + '/badassdatascience/forecasting/deep_learning'
+#
+# configure relevant directory access
+#
+root_directory_application = os.environ['BDS_HOME'] + '/badassdatascience/forex'
 root_directory_django = os.environ['BDS_HOME'] + '/badassdatascience/django'
+
 #data_directory = root_directory_application + '/data'
 #price_types_file = data_directory + '/price_types.json'
 #intervals_file = data_directory + '/intervals.json'
@@ -46,11 +50,9 @@ import django
 django.setup()
 from django.utils import timezone
 
-
 #
 # import local libraries
 #
-#import boilerplate
 import library.database as db
 
 #
