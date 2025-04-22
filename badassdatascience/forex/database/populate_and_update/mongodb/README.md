@@ -17,4 +17,10 @@ db.createCollection("candlesticks");
 
 db.candlesticks.createIndex({instrument : 1, time : 1, complete : 1}, {unique : true});
 
+
+
+
+papermill oop_get_candles_notebook.ipynb output/candles_EUR_USD_M15.ipynb -p granularity M15 -p instrument EUR_USD
+
+
 ```

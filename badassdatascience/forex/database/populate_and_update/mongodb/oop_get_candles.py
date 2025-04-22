@@ -5,6 +5,7 @@ import time
 import pytz
 import pandas as pd
 import matplotlib.pyplot as plt
+from pymongo import MongoClient
 
 from badassdatascience.forex.utilities.oanda_tools import get_oanda_headers
 from badassdatascience.forex.utilities.oanda_tools import price_type_map
@@ -22,7 +23,8 @@ class CandlePull():
         instrument,
         price_types,
         error_retry_interval = 5,
-        keep_complete_only = True
+        keep_complete_only = True,
+        verbose = False,
     ):
 
         #
@@ -35,12 +37,13 @@ class CandlePull():
         self.price_types = price_types
         self.error_retry_interval = error_retry_interval
         self.keep_complete_only = keep_complete_only
+        self.verbose = verbose
 
         #
         # initialize (hard-coded)
         #
         self.timezone_to_use = 'America/Toronto'   # Don't change this!
-        self.start_time = int(datetime.datetime(2010, 1, 1, 0, 0, 0, tzinfo=datetime.timezone.utc).timestamp())
+        self.start_time = int(datetime.datetime(2009, 12, 31, 23, 59, 59, tzinfo=datetime.timezone.utc).timestamp())
         
         #
         # additional initialization
@@ -49,6 +52,12 @@ class CandlePull():
         self.price_type_list = [price_type_map[q] for q in self.price_types]
         self.end_date_original = int(time.mktime(datetime.datetime.now().timetuple()))
 
+        #
+        # MongoDB
+        #
+        client = MongoClient()
+        self.db = client.forex
+    
     #
     # Get the header information needed for Oanda requests
     #
@@ -144,30 +153,70 @@ class CandlePull():
     def create_dataframe(self):
         self.df = pd.DataFrame(self.insert_many_list).sort_values(by = ['instrument', 'time'])
         self.df = self.df[self.df['time'] >= int(self.start_time)]
-        self.df = self.df.reset_index().copy()
+        self.df = self.df.reset_index().drop(columns = ['index']).copy()
+
+        self.time_filtered_df = self.df[self.df['time'] > self.start_time].sort_values(by = ['time']).copy()
+        self.to_insert = self.time_filtered_df.to_dict(orient = 'records')
 
     #
     # QA
     #
+    # Change this to include assert statements
+    #
     def qa(self):
-        print(len(self.df.index) == len(self.df[['time']].drop_duplicates()))
-        print(len(self.df.index) == len(self.df['time'].unique()))
+        if self.verbose:
+            print(len(self.df.index) == len(self.df[['time']].drop_duplicates()))
+            print(len(self.df.index) == len(self.df['time'].unique()))
+    
+    #
+    # See what is already in the database
+    #
+    def get_max_previous_time(self):
+        candlesticks = self.db.candlesticks
+        
+        result = candlesticks.aggregate(
+            [
+                {
+                    '$match': {'instrument' : self.instrument.replace('_', '/') },
+                },
+                {
+                    '$group': {
+                        '_id': None,
+                        'max_time' : {'$max': '$time'},
+                    },
+                },
+            ]
+        )
+        result_list = [q for q in result]
+        if len(result_list) > 0:
+            self.start_time = result_list[0]['max_time']
 
+    #
+    # insert into database
+    #
+    def insert_into_mongoDB(self):
+        if len(self.to_insert) > 0:
+            candlesticks = self.db.candlesticks
+            self.insert_result = candlesticks.insert_many(self.to_insert)
+    
     #
     # Compute everything
     #
     def fit(self):
+        self.get_max_previous_time()
         self.get_headers()
         self.compute_candle_features()
         self.create_dataframe()
         self.qa()
+        self.insert_into_mongoDB()
 
     #
     # plot
     #
     def plot(self, savepath = None):
         plt.figure()
-        plt.plot(self.df['time'], self.df['mid_c'])
+        plt.plot(self.df['time'], self.df['mid_c'])  # we may want to have the plot column be flexible (defaulting to 'mid_c' though)
+        plt.title(self.instrument)
 
         if savepath == None:
             plt.show()
