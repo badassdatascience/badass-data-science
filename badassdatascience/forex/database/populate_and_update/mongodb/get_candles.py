@@ -129,14 +129,29 @@ if True:
 
             # retrieve the instrument candlesticks from the Oanda server
             rj = get_instrument_candlesticks(instrument, count, price_types, granularity, end_date)        
-            candlesticks = rj['candles']
 
+
+            candlesticks = rj['candles']
+            #candlesticks = []
+            #for candle in temp_candlesticks:
+            #    if candle['complete']:
+            #        candlesticks.append(candle)
+
+            
             # deal with timestamps and time-related content
             date_list = []
             for candle in candlesticks:
                 deal_with_candlestick_format_and_time(candle)
                 date_list.append(candle['time'])
 
+            #print()
+            #import pprint as pp
+            #pp.pprint(candlesticks[0:2])
+            #print()
+            #import sys; sys.exit(0)
+            
+
+                
             rj['timestamp_int_min'] = min(date_list)
             rj['timestamp_int_max'] = max(date_list)
 
@@ -156,9 +171,18 @@ if True:
         granularity = item['granularity']
         candles_list = item['candles']
         for candle in candles_list:
+
+            #import pprint as pp
+            #print()
+            #pp.pprint(candle)
+            #print()
+            #import sys; sys.exit(0)
+            
             candle['instrument'] = instrument
             candle['granularity'] = granularity
-            candlestick_dict_list.append(candle)
+            
+            if candle['complete']:
+                candlestick_dict_list.append(candle)
 
     #with open(output_file, 'w') as f:
     #    json.dump(candlestick_dict_list, f, indent = 2)
