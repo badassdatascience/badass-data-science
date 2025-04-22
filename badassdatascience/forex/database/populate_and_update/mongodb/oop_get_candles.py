@@ -132,7 +132,7 @@ class CandlePull():
 
 
             # Are we done?
-            if (len(date_list) < count) or (min(date_list) < self.start_time):
+            if (len(date_list) < self.count) or (min(date_list) < self.start_time):
                 finished = True
             else:
                 # prepare for the next iteration
@@ -151,7 +151,7 @@ class CandlePull():
     #
     def qa(self):
         print(len(self.df.index) == len(self.df[['time']].drop_duplicates()))
-        print(len(t.df.index) == len(t.df['time'].unique()))
+        print(len(self.df.index) == len(self.df['time'].unique()))
 
     #
     # Compute everything
