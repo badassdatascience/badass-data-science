@@ -29,19 +29,41 @@ papermill oop_get_candles_notebook.ipynb output/candles_GBP_USD_M15.ipynb -p gra
 papermill oop_get_candles_notebook.ipynb output/candles_NZD_USD_M15.ipynb -p granularity M15 -p instrument NZD_USD
 
 
-source /home/emily/activate_stuff.sh; export BDS_HOME=/home/emily/Desktop/projects/test/badass-data-science; export PYTHONPATH=$PYTHONPATH:$BDS_HOME; /home/emily/venvs/ml/bin/papermill $BDS_HOME/badassdatascience/forex/database/populate_and_update/mongodb/oop_get_candles_notebook.ipynb $BDS_HOME/badassdatascience/forex/database/populate_and_update/mongodb/output/candles_EUR_USD_M15.ipynb -p granularity M15 -p instrument EUR_USD
+## M15, every 15 minutes
 
-source /home/emily/activate_stuff.sh; export BDS_HOME=/home/emily/Desktop/projects/test/badass-data-science; export PYTHONPATH=$PYTHONPATH:$BDS_HOME; /home/emily/venvs/ml/bin/papermill $BDS_HOME/badassdatascience/forex/database/populate_and_update/mongodb/oop_get_candles_notebook.ipynb $BDS_HOME/badassdatascience/forex/database/populate_and_update/mongodb/output/candles_USD_CAD_M15.ipynb -p granularity M15 -p instrument USD_CAD
+*/15 * * * * source /home/emily/activate_stuff.sh; export BDS_HOME=/home/emily/Desktop/projects/test/badass-data-science; export PYTHONPATH=$PYTHONPATH:$BDS_HOME; /home/emily/venvs/ml/bin/papermill $BDS_HOME/badassdatascience/forex/database/populate_and_update/mongodb/oop_get_candles_notebook.ipynb $BDS_HOME/badassdatascience/forex/database/populate_and_update/mongodb/output/candles_EUR_USD_M15.ipynb -p granularity M15 -p instrument EUR_USD
 
-source /home/emily/activate_stuff.sh; export BDS_HOME=/home/emily/Desktop/projects/test/badass-data-science; export PYTHONPATH=$PYTHONPATH:$BDS_HOME; /home/emily/venvs/ml/bin/papermill $BDS_HOME/badassdatascience/forex/database/populate_and_update/mongodb/oop_get_candles_notebook.ipynb $BDS_HOME/badassdatascience/forex/database/populate_and_update/mongodb/output/candles_USD_JPY_M15.ipynb -p granularity M15 -p instrument USD_JPY
+*/15 * * * * source /home/emily/activate_stuff.sh; export BDS_HOME=/home/emily/Desktop/projects/test/badass-data-science; export PYTHONPATH=$PYTHONPATH:$BDS_HOME; /home/emily/venvs/ml/bin/papermill $BDS_HOME/badassdatascience/forex/database/populate_and_update/mongodb/oop_get_candles_notebook.ipynb $BDS_HOME/badassdatascience/forex/database/populate_and_update/mongodb/output/candles_USD_CAD_M15.ipynb -p granularity M15 -p instrument USD_CAD
 
-source /home/emily/activate_stuff.sh; export BDS_HOME=/home/emily/Desktop/projects/test/badass-data-science; export PYTHONPATH=$PYTHONPATH:$BDS_HOME; /home/emily/venvs/ml/bin/papermill $BDS_HOME/badassdatascience/forex/database/populate_and_update/mongodb/oop_get_candles_notebook.ipynb $BDS_HOME/badassdatascience/forex/database/populate_and_update/mongodb/output/candles_USD_CHF_M15.ipynb -p granularity M15 -p instrument USD_CHF
+*/15 * * * * source /home/emily/activate_stuff.sh; export BDS_HOME=/home/emily/Desktop/projects/test/badass-data-science; export PYTHONPATH=$PYTHONPATH:$BDS_HOME; /home/emily/venvs/ml/bin/papermill $BDS_HOME/badassdatascience/forex/database/populate_and_update/mongodb/oop_get_candles_notebook.ipynb $BDS_HOME/badassdatascience/forex/database/populate_and_update/mongodb/output/candles_USD_JPY_M15.ipynb -p granularity M15 -p instrument USD_JPY
 
-source /home/emily/activate_stuff.sh; export BDS_HOME=/home/emily/Desktop/projects/test/badass-data-science; export PYTHONPATH=$PYTHONPATH:$BDS_HOME; /home/emily/venvs/ml/bin/papermill $BDS_HOME/badassdatascience/forex/database/populate_and_update/mongodb/oop_get_candles_notebook.ipynb $BDS_HOME/badassdatascience/forex/database/populate_and_update/mongodb/output/candles_AUD_USD_M15.ipynb -p granularity M15 -p instrument AUD_USD
+*/15 * * * * source /home/emily/activate_stuff.sh; export BDS_HOME=/home/emily/Desktop/projects/test/badass-data-science; export PYTHONPATH=$PYTHONPATH:$BDS_HOME; /home/emily/venvs/ml/bin/papermill $BDS_HOME/badassdatascience/forex/database/populate_and_update/mongodb/oop_get_candles_notebook.ipynb $BDS_HOME/badassdatascience/forex/database/populate_and_update/mongodb/output/candles_USD_CHF_M15.ipynb -p granularity M15 -p instrument USD_CHF
 
-source /home/emily/activate_stuff.sh; export BDS_HOME=/home/emily/Desktop/projects/test/badass-data-science; export PYTHONPATH=$PYTHONPATH:$BDS_HOME; /home/emily/venvs/ml/bin/papermill $BDS_HOME/badassdatascience/forex/database/populate_and_update/mongodb/oop_get_candles_notebook.ipynb $BDS_HOME/badassdatascience/forex/database/populate_and_update/mongodb/output/candles_GBP_USD_M15.ipynb -p granularity M15 -p instrument GBP_USD
+*/15 * * * * source /home/emily/activate_stuff.sh; export BDS_HOME=/home/emily/Desktop/projects/test/badass-data-science; export PYTHONPATH=$PYTHONPATH:$BDS_HOME; /home/emily/venvs/ml/bin/papermill $BDS_HOME/badassdatascience/forex/database/populate_and_update/mongodb/oop_get_candles_notebook.ipynb $BDS_HOME/badassdatascience/forex/database/populate_and_update/mongodb/output/candles_AUD_USD_M15.ipynb -p granularity M15 -p instrument AUD_USD
 
-source /home/emily/activate_stuff.sh; export BDS_HOME=/home/emily/Desktop/projects/test/badass-data-science; export PYTHONPATH=$PYTHONPATH:$BDS_HOME; /home/emily/venvs/ml/bin/papermill $BDS_HOME/badassdatascience/forex/database/populate_and_update/mongodb/oop_get_candles_notebook.ipynb $BDS_HOME/badassdatascience/forex/database/populate_and_update/mongodb/output/candles_NZD_USD_M15.ipynb -p granularity M15 -p instrument NZD_USD
+*/15 * * * * source /home/emily/activate_stuff.sh; export BDS_HOME=/home/emily/Desktop/projects/test/badass-data-science; export PYTHONPATH=$PYTHONPATH:$BDS_HOME; /home/emily/venvs/ml/bin/papermill $BDS_HOME/badassdatascience/forex/database/populate_and_update/mongodb/oop_get_candles_notebook.ipynb $BDS_HOME/badassdatascience/forex/database/populate_and_update/mongodb/output/candles_GBP_USD_M15.ipynb -p granularity M15 -p instrument GBP_USD
+
+*/15 * * * * source /home/emily/activate_stuff.sh; export BDS_HOME=/home/emily/Desktop/projects/test/badass-data-science; export PYTHONPATH=$PYTHONPATH:$BDS_HOME; /home/emily/venvs/ml/bin/papermill $BDS_HOME/badassdatascience/forex/database/populate_and_update/mongodb/oop_get_candles_notebook.ipynb $BDS_HOME/badassdatascience/forex/database/populate_and_update/mongodb/output/candles_NZD_USD_M15.ipynb -p granularity M15 -p instrument NZD_USD
+
+
+
+
+## Hourly at the 5th minute
+
+5 * * * * source /home/emily/activate_stuff.sh; export BDS_HOME=/home/emily/Desktop/projects/test/badass-data-science; export PYTHONPATH=$PYTHONPATH:$BDS_HOME; /home/emily/venvs/ml/bin/papermill $BDS_HOME/badassdatascience/forex/database/populate_and_update/mongodb/oop_get_candles_notebook.ipynb $BDS_HOME/badassdatascience/forex/database/populate_and_update/mongodb/output/candles_EUR_USD_H1.ipynb -p granularity H1 -p instrument EUR_USD
+
+5 * * * * source /home/emily/activate_stuff.sh; export BDS_HOME=/home/emily/Desktop/projects/test/badass-data-science; export PYTHONPATH=$PYTHONPATH:$BDS_HOME; /home/emily/venvs/ml/bin/papermill $BDS_HOME/badassdatascience/forex/database/populate_and_update/mongodb/oop_get_candles_notebook.ipynb $BDS_HOME/badassdatascience/forex/database/populate_and_update/mongodb/output/candles_USD_CAD_H1.ipynb -p granularity H1 -p instrument USD_CAD
+
+5 * * * * source /home/emily/activate_stuff.sh; export BDS_HOME=/home/emily/Desktop/projects/test/badass-data-science; export PYTHONPATH=$PYTHONPATH:$BDS_HOME; /home/emily/venvs/ml/bin/papermill $BDS_HOME/badassdatascience/forex/database/populate_and_update/mongodb/oop_get_candles_notebook.ipynb $BDS_HOME/badassdatascience/forex/database/populate_and_update/mongodb/output/candles_USD_JPY_H1.ipynb -p granularity H1 -p instrument USD_JPY
+
+5 * * * * source /home/emily/activate_stuff.sh; export BDS_HOME=/home/emily/Desktop/projects/test/badass-data-science; export PYTHONPATH=$PYTHONPATH:$BDS_HOME; /home/emily/venvs/ml/bin/papermill $BDS_HOME/badassdatascience/forex/database/populate_and_update/mongodb/oop_get_candles_notebook.ipynb $BDS_HOME/badassdatascience/forex/database/populate_and_update/mongodb/output/candles_USD_CHF_H1.ipynb -p granularity H1 -p instrument USD_CHF
+
+5 * * * * source /home/emily/activate_stuff.sh; export BDS_HOME=/home/emily/Desktop/projects/test/badass-data-science; export PYTHONPATH=$PYTHONPATH:$BDS_HOME; /home/emily/venvs/ml/bin/papermill $BDS_HOME/badassdatascience/forex/database/populate_and_update/mongodb/oop_get_candles_notebook.ipynb $BDS_HOME/badassdatascience/forex/database/populate_and_update/mongodb/output/candles_AUD_USD_H1.ipynb -p granularity H1 -p instrument AUD_USD
+
+5 * * * * source /home/emily/activate_stuff.sh; export BDS_HOME=/home/emily/Desktop/projects/test/badass-data-science; export PYTHONPATH=$PYTHONPATH:$BDS_HOME; /home/emily/venvs/ml/bin/papermill $BDS_HOME/badassdatascience/forex/database/populate_and_update/mongodb/oop_get_candles_notebook.ipynb $BDS_HOME/badassdatascience/forex/database/populate_and_update/mongodb/output/candles_GBP_USD_H1.ipynb -p granularity H1 -p instrument GBP_USD
+
+5 * * * * source /home/emily/activate_stuff.sh; export BDS_HOME=/home/emily/Desktop/projects/test/badass-data-science; export PYTHONPATH=$PYTHONPATH:$BDS_HOME; /home/emily/venvs/ml/bin/papermill $BDS_HOME/badassdatascience/forex/database/populate_and_update/mongodb/oop_get_candles_notebook.ipynb $BDS_HOME/badassdatascience/forex/database/populate_and_update/mongodb/output/candles_NZD_USD_H1.ipynb -p granularity H1 -p instrument NZD_USD
+
 
 
 ```
