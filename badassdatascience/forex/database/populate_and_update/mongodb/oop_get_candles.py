@@ -177,7 +177,10 @@ class CandlePull():
         result = candlesticks.aggregate(
             [
                 {
-                    '$match': {'instrument' : self.instrument.replace('_', '/') },
+                    '$match': {
+                        'instrument' : self.instrument.replace('_', '/'),
+                        'granularity' : self.granularity,
+                    },
                 },
                 {
                     '$group': {
