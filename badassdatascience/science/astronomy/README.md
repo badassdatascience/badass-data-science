@@ -8,9 +8,9 @@ Needed to know when solar noon occurs on a given day for a photography project. 
 
 This code retrieves ephemeris data from the [PyEphem](https://rhodesmill.org/pyephem) module.
 
-##### Example Solar Noon Calculation
+##### Example:  Solar Noon Calculation
 
-This looks nicer in the notebook...
+This looks nicer in the [SolarNoon-demo.ipynb](SolarNoon-demo.ipynb) notebook...
 ```
 from SolarNoon import SolarNoon
 import datetime
