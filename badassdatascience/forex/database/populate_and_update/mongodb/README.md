@@ -28,7 +28,7 @@ test> use forex;
 forex> db.candlesticks.find({instrument: 'EUR/USD', granularity: 'H1', time : {$gt : 1579111200}, complete: true}).limit(2)
 ```
 
-#### Result
+#### Example Query Result
 ```
 [
   {
