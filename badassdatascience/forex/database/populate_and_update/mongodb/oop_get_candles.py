@@ -52,9 +52,10 @@ class CandlePull():
         self.price_type_list = [price_type_map[q] for q in self.price_types]
         self.end_date_original = int(time.mktime(datetime.datetime.now().timetuple()))
 
-        #
-        # MongoDB
-        #
+    #
+    # Connect to MongoDB
+    #
+    def connect_to_mongoDB(self):
         client = MongoClient()
         self.db = client.forex
     
@@ -206,12 +207,13 @@ class CandlePull():
     # Compute everything
     #
     def fit(self):
+        self.connect_to_mongoDB()
         self.get_max_previous_time()
         self.get_headers()
         self.compute_candle_features()
         self.create_dataframe()
         self.qa()
-        self.insert_into_mongoDB()
+        #self.insert_into_mongoDB()
 
     #
     # plot
