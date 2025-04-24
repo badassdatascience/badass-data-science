@@ -15,7 +15,7 @@ use forex;
 
 db.createCollection("candlesticks");
 
-db.candlesticks.createIndex({instrument : 1, time : 1, complete : 1}, {unique : true});
+db.candlesticks.createIndex({instrument : 1, granularity : 1, time : 1, complete : 1}, {unique : true});
 
 
 
