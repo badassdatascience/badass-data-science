@@ -2,4 +2,4 @@
 
 This section contains code and documentation for some cool science-related projects reported on the Badass Data Science blog.
 
-* [Astronomy Analyses](astronomy)
+* [Astronomy-related analyses](astronomy)
