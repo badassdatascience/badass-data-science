@@ -162,7 +162,9 @@ def compute_ta_indicators(
     column_list_sans_time = list(df_to_return.columns)
     
     df_to_return['time'] = df['time'].values
-    column_list = ['time']
+    df_to_return['instrument'] = df['instrument'].values
+    df_to_return['granularity'] = df['granularity'].values
+    column_list = ['time', 'instrument', 'granularity']
     column_list.extend(column_list_sans_time)
     df_to_return = df_to_return[column_list].copy()
     
