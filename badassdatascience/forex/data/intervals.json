@@ -1,0 +1,8 @@
+{
+    "intervals" : [
+	{
+	    "name" : "Minute",
+	    "symbol" : "M1"
+	}
+    ]
+}
