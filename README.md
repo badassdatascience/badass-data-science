@@ -16,14 +16,14 @@ This section consists of a Jupyter notebook that forecasts EC2 spot prices using
 
 While this notebook can be run from the Jupyter GUI, I also provide a Nextflow pipeline that updates the EC2 spot price database and resamples its contents. This is designed to be run once per day:
 
-- [Nextflow/ec2_spot_price_analysis.nf](Nextflow/ec2_spot_price_analysis.nf)
+- [pipelines/Nextflow/ec2_spot_price_analysis.nf](pipelines/Nextflow/ec2_spot_price_analysis.nf)
 
 Finally, a Django model provides the object modeling infrastructure for both the database and the queries made using it:
 
 - [badassdatascience/django/ec2_spot_price_tracker/models.py](badassdatascience/django/ec2_spot_price_tracker/models.py)
 
 Here is example output:
-- [Sample EC2 spot price forecast results](Nextflow/saved_output_examples/ec2_spot_price_analysis/NEXTFLOW_OUTPUT_ARIMA_demo_forecasting_EC2_spot_prices_2025-01-07.ipynb)
+- [Sample EC2 spot price forecast results](pipelines/Nextflow/saved_output_examples/ec2_spot_price_analysis/NEXTFLOW_OUTPUT_ARIMA_demo_forecasting_EC2_spot_prices_2025-01-07.ipynb)
 
 #### <a name="nextflow"></a>Nextflow
 
