@@ -23,7 +23,7 @@ Finally, a Django model provides the object modeling infrastructure for both the
 - [badassdatascience/django/ec2_spot_price_tracker/models.py](badassdatascience/django/ec2_spot_price_tracker/models.py)
 
 Here is example output:
-- [Sample EC2 spot price forecast results](Nextflow/saved_output_examples/ec2_spot_price_analysis/NEXTFLOW_OUTPUT_ARIMA_demo_forecasting_EC2_spot_prices_2025-01-07.ipynb)
+- [Sample EC2 spot price forecast results](pipelines/Nextflow/saved_output_examples/ec2_spot_price_analysis/NEXTFLOW_OUTPUT_ARIMA_demo_forecasting_EC2_spot_prices_2025-01-07.ipynb)
 
 #### <a name="nextflow"></a>Nextflow
 
