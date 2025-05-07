@@ -1,7 +1,0 @@
-{
-    "price_types" : [
-	"ask",
-	"bid",
-	"mid"
-    ]
-}
