@@ -1,6 +1,6 @@
 # <a name="top-badass-data-science-repository"></a>Badass Data Science
 
-This repository contains multiple data science and bioinformatics skill demonstrations (designed to assist my current employment search) as well as code supporting my <a name="badass-data-science-top" target="_blank" href="https://badassdatascience.com">Badass Data Science</a> blog.
+This repository contains multiple data science and bioinformatics skill demonstrations (designed to assist my current employment search) as well as code supporting my <a name="badass-data-science-top" target="_blank" href="https://badassdatascience.com">Badass Data Science</a> blog. (Note: This blog is currently down... will have it back up in a couple of days).
 
 Note: The Badass Data Science blog is currently down for refactoring; I'll republish it soon.
 
