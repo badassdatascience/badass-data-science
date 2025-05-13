@@ -1,6 +1,6 @@
 # Nextflow Demos
 
-Note:  I wrote the pipeline described herein when I was two days into learning Nextflow. Therefore this code may not represent the most optimal way to express the indended pipelines. That being said, these Nextflow scripts do run successfully:
+Note:  I wrote the pipeline described herein when I was two days into learning Nextflow. Therefore this code may not represent the most optimal way to express the indended pipelines--a matter I will resolve shortly. This being said, these Nextflow scripts do run successfully:
 
 ## Forecasting EC2 Spot Prices
 
