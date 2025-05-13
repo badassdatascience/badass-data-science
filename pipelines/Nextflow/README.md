@@ -1,4 +1,4 @@
-# Pipeline Creation and Management Skill Demo (Nextflow)
+# Pipeline Creation and Management Skills Demo (Nextflow)
 
 ***Note:***  I wrote the pipeline described below when I was two days into learning Nextflow. Therefore this code may not represent the most optimal way to express the indended pipeline--a matter I will resolve in the near future. That being said, these Nextflow scripts do run successfully:
 

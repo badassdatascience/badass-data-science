@@ -1,4 +1,4 @@
-# Pipeline Creation and Management Skill Demo (Apache Airflow)
+# Pipeline Creation and Management Skills Demo (Apache Airflow)
 
 The code contained herein implements an pipeline that prepares raw currency price data for forecasting using deep learning. Here is a schematic of the pipeline's directed acyclic graph (DAG):
 
