@@ -4,5 +4,7 @@ The code contained herein implements an pipeline that prepares raw currency pric
 
 !["airflow-screenshot"](Airflow-Screenshot.png)
 
-We define DAG elements (tasks) in Python script [prepare_forex_data.py](prepare_forex_data.py) which provides the "command and control" for this pipeline.
+We define DAG elements (tasks) in Python script [prepare_forex_data.py](prepare_forex_data.py) which provides the "command and control" for this pipeline. This file first defines each task, and then specifies the dependencies between tasks.
+
+Airflow's user interface shows when tasks fail or succeed during runtime.
 
