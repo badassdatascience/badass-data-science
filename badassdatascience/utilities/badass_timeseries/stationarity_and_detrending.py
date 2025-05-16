@@ -33,8 +33,10 @@ def kpss_test(
         'test_statistic' : kpsstest[0],
         'p_value' : kpsstest[1],
         'n_lags_used' : kpsstest[2],
+        'critical_values' : {},
     }
+    
     for key, value in kpsstest[3].items():
-        to_return['critical_value_' + key.replace(' ', '_')] = value
+        to_return['critical_values'][key] = value
 
     return to_return
