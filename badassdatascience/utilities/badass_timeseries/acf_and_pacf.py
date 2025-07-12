@@ -8,8 +8,8 @@ def center_the_ci_around_zero(cf, ci):
     CI = ci - M_cf
     return CI
 
-def compute_acf_the_way_emily_wants_it(x, alpha = 0.05, nlags = 49):
-    cf, ci = acf(x, alpha = alpha, nlags = nlags)
+def compute_acf_the_way_emily_wants_it(x, alpha = 0.05, nlags = 49, fft = True):
+    cf, ci = acf(x, alpha = alpha, nlags = nlags, fft = fft)
     return cf, ci
 
 def compute_pacf_the_way_emily_wants_it(x, alpha = 0.05, nlags = 49):
