@@ -30,3 +30,7 @@ def plot_acf_and_pacf_the_way_emily_wants_it(cf, CI, title, first_lag = 0):
     plt.title(title)
     plt.show()
     plt.close()
+
+def identify_significant_indices(cf, CI):
+    indices = (cf <= CI[:, 0]) | (cf >= CI[:, 1])
+    return np.arange(0, len(cf))[indices]
