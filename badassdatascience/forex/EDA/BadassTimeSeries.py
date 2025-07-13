@@ -3,10 +3,15 @@ import pandas as pd
 from scipy import stats
 import matplotlib.pyplot as plt
 
-from statsmodels.graphics.tsaplots import plot_acf
-from statsmodels.graphics.tsaplots import plot_pacf
+#from statsmodels.graphics.tsaplots import plot_acf
+#from statsmodels.graphics.tsaplots import plot_pacf
 
 from badassdatascience.utilities.badass_timeseries import stationarity_and_detrending as sd
+
+from badassdatascience.utilities.badass_timeseries.acf_and_pacf import center_the_ci_around_zero
+from badassdatascience.utilities.badass_timeseries.acf_and_pacf import compute_acf_the_way_emily_wants_it
+from badassdatascience.utilities.badass_timeseries.acf_and_pacf import compute_pacf_the_way_emily_wants_it
+from badassdatascience.utilities.badass_timeseries.acf_and_pacf import plot_acf_and_pacf_the_way_emily_wants_it
 
 
 class BadassTimeSeries():
@@ -34,8 +39,20 @@ class BadassTimeSeries():
                 }
             )
             .set_index('timestamp', verify_integrity = True)
+            .sort_index()
         )
-        self.diff_df_original = self.df_original['y'].values[1:] - self.df_original['y'].values[0:-1]
+        
+        
+        self.df_diff_original = (
+            pd.DataFrame(
+                {
+                    'timestamp' : pd.to_datetime(self.df_original.index.values[1:], unit = 's'),
+                    'y' : self.df_original['y'].values[1:] - self.df_original['y'].values[0:-1],
+                }
+            )
+            .set_index('timestamp', verify_integrity = True)
+            .sort_index()
+        )
 
     #
     # Identify missing values 
@@ -58,8 +75,16 @@ class BadassTimeSeries():
         )
         
         self.df_projected_to_full_timestamp_range.index = index
-        self.diff_df_projected_to_full_timestamp_range = (
-            self.df_projected_to_full_timestamp_range['y'].values[1:] - self.df_projected_to_full_timestamp_range['y'].values[0:-1]
+        
+        self.df_diff_projected_to_full_timestamp_range = (
+            pd.DataFrame(
+                {
+                    'timestamp' : pd.to_datetime(self.df_projected_to_full_timestamp_range.index.values[1:], unit = 's'),
+                    'y' : self.df_projected_to_full_timestamp_range['y'].values[1:] - self.df_projected_to_full_timestamp_range['y'].values[0:-1],
+                }
+            )
+            .set_index('timestamp', verify_integrity = True)
+            .sort_index()
         )
 
     #
@@ -67,7 +92,17 @@ class BadassTimeSeries():
     #
     def fill_forward(self):
         self.df_filled_forward = self.df_projected_to_full_timestamp_range.ffill()
-        self.diff_df_filled_forward = self.df_filled_forward['y'].values[1:] - self.df_filled_forward['y'].values[0:-1]
+        
+        self.df_diff_filled_forward = (
+            pd.DataFrame(
+                {
+                    'timestamp' : pd.to_datetime(self.df_filled_forward.index.values[1:], unit = 's'),
+                    'y' : self.df_filled_forward['y'].values[1:] - self.df_filled_forward['y'].values[0:-1],
+                }
+            )
+            .set_index('timestamp', verify_integrity = True)
+            .sort_index()
+        )
 
     #
     # basic "fit" operation al la scikit-learn's style
@@ -124,19 +159,19 @@ class BadassTimeSeries():
     #
     # optionally add more information to the "fit"
     #
-    def fit_more_details(self):
+    def fit_details(self):
         if self.have_fit:
             self.dict_adf_tests = {
                 'original' : sd.adf_test(self.df_original['y']),
-                'diff_original' : sd.adf_test(self.diff_df_original),
+                'diff_original' : sd.adf_test(self.df_diff_original['y']),
                 'filled_forward' : sd.adf_test(self.df_filled_forward['y']),
-                'diff_filled_forward' : sd.adf_test(self.diff_df_filled_forward),
+                'diff_filled_forward' : sd.adf_test(self.df_diff_filled_forward['y']),
             }
             self.dict_kpss_tests = {
                 'original' : sd.kpss_test(self.df_original['y']),
-                'diff_original' : sd.kpss_test(self.diff_df_original),
+                'diff_original' : sd.kpss_test(self.df_diff_original['y']),
                 'filled_forward' : sd.kpss_test(self.df_filled_forward['y']),
-                'diff_filled_forward' : sd.kpss_test(self.diff_df_filled_forward),
+                'diff_filled_forward' : sd.kpss_test(self.df_diff_filled_forward['y']),
             }
         else:
             print('Need to run "fit" method before running "fit_more_details" method.')
@@ -152,58 +187,127 @@ class BadassTimeSeries():
         assert(len(self.df_projected_to_full_timestamp_range) >= len(self.df_projected_to_full_timestamp_range.dropna()))
         assert(len(self.df_filled_forward) == len(self.df_filled_forward.dropna()))
 
+
+    
+    def compute_acf_and_pacf(self, nlags = 200):
+        self.acf_original, self.acf_ci_original = compute_acf_the_way_emily_wants_it(self.df_original['y'], nlags = nlags, fft = False)
+        self.pacf_original, self.pacf_ci_original = compute_pacf_the_way_emily_wants_it(self.df_original['y'], nlags = nlags)
+        self.aCI_original = center_the_ci_around_zero(self.acf_original, self.acf_ci_original)
+        self.paCI_original = center_the_ci_around_zero(self.pacf_original, self.pacf_ci_original)
+        
+        self.acf_diff_original, self.acf_ci_diff_original = compute_acf_the_way_emily_wants_it(self.df_diff_original['y'], nlags = nlags, fft = False)
+        self.pacf_diff_original, self.pacf_ci_diff_original = compute_pacf_the_way_emily_wants_it(self.df_diff_original['y'], nlags = nlags)
+        self.aCI_diff_original = center_the_ci_around_zero(self.acf_diff_original, self.acf_ci_diff_original)
+        self.paCI_diff_original = center_the_ci_around_zero(self.pacf_diff_original, self.pacf_ci_diff_original)
+
+        self.acf_filled_forward, self.acf_ci_filled_forward = compute_acf_the_way_emily_wants_it(self.df_filled_forward['y'], nlags = nlags, fft = False)
+        self.pacf_filled_forward, self.pacf_ci_filled_forward = compute_pacf_the_way_emily_wants_it(self.df_filled_forward['y'], nlags = nlags)
+        self.aCI_filled_forward = center_the_ci_around_zero(self.acf_filled_forward, self.acf_ci_filled_forward)
+        self.paCI_filled_forward = center_the_ci_around_zero(self.pacf_filled_forward, self.pacf_ci_filled_forward)
+        
+        self.acf_diff_filled_forward, self.acf_ci_diff_filled_forward = compute_acf_the_way_emily_wants_it(self.df_diff_filled_forward['y'], nlags = nlags, fft = False)
+        self.pacf_diff_filled_forward, self.pacf_ci_diff_filled_forward = compute_pacf_the_way_emily_wants_it(self.df_diff_filled_forward['y'], nlags = nlags)
+        self.aCI_diff_filled_forward = center_the_ci_around_zero(self.acf_diff_filled_forward, self.acf_ci_diff_filled_forward)
+        self.paCI_diff_filled_forward = center_the_ci_around_zero(self.pacf_diff_filled_forward, self.pacf_ci_diff_filled_forward)
+
+
+    def plot_acf_and_pacf(self, first_lag = 1):
+        plot_acf_and_pacf_the_way_emily_wants_it(self.acf_original, self.aCI_original, 'ACF Original', first_lag = first_lag)
+        plot_acf_and_pacf_the_way_emily_wants_it(self.pacf_original, self.paCI_original, 'PACF Original', first_lag = first_lag)
+
+        plot_acf_and_pacf_the_way_emily_wants_it(self.acf_diff_original, self.aCI_diff_original, 'ACF Diff Original', first_lag = first_lag)
+        plot_acf_and_pacf_the_way_emily_wants_it(self.pacf_diff_original, self.paCI_diff_original, 'PACF Diff Original', first_lag = first_lag)
+
+        plot_acf_and_pacf_the_way_emily_wants_it(self.acf_filled_forward, self.aCI_filled_forward, 'ACF Filled Forward', first_lag = first_lag)
+        plot_acf_and_pacf_the_way_emily_wants_it(self.pacf_filled_forward, self.paCI_filled_forward, 'PACF Filled Forward', first_lag = first_lag)
+
+        plot_acf_and_pacf_the_way_emily_wants_it(self.acf_diff_filled_forward, self.aCI_diff_filled_forward, 'ACF Diff Filled Forward', first_lag = first_lag)
+        plot_acf_and_pacf_the_way_emily_wants_it(self.pacf_diff_filled_forward, self.paCI_diff_filled_forward, 'PACF Diff Filled Forward', first_lag = first_lag)
+
+
+
     #
     # ACF plots
     #
-    def plot_the_acfs(self):
-        plt.figure()
-        plot_acf(self.df_original['y'].values)
-        plt.title('Autocorrelation:  original')
-        plt.show()
-        plt.close()
+    #def plot_the_acfs(self):
+    #    plt.figure()
+    #    plot_acf(self.df_original['y'].values)
+    #    plt.title('Autocorrelation:  original')
+    #    plt.show()
+    #    plt.close()
+    #
+    #    plt.figure()
+    #    plot_acf(self.df_diff_original['y'].values)
+    #    plt.title('Autocorrelation:  diff_original')
+    #    plt.show()
+    #    plt.close()
+    #
+    #    plt.figure()
+    #    plot_acf(self.df_diff_original['y'].values)
+    #    plt.ylim([-0.025, 0.025])  # hard-coded... ugg... Fix This!
+    #    plt.title('Autocorrelation:  diff_original (Zoomed-In)')
+    #    plt.show()
+    #    plt.close()
+    #    
+    #    plt.figure()
+    #    plot_acf(self.df_filled_forward['y'].values)
+    #    plt.title('Autocorrelation:  filled_forward')
+    #    plt.show()
+    #    plt.close()
+    #
+    #    plt.figure()
+    #    plot_acf(self.df_diff_filled_forward['y'].values)
+    #    plt.title('Autocorrelation:  diff_filled_forward')
+    #    plt.show()
+    #    plt.close()
+    #
+    #    plt.figure()
+    #    plot_acf(self.df_diff_filled_forward['y'].values)
+    #    plt.ylim([-0.025, 0.025])  # hard-coded... ugg... Fix This!
+    #    plt.title('Autocorrelation:  diff_filled_forward (Zoomed-In)')
+    #    plt.show()
+    #    plt.close()
 
-        plt.figure()
-        plot_acf(self.diff_df_original)
-        plt.title('Autocorrelation:  diff_original')
-        plt.show()
-        plt.close()
-
-        plt.figure()
-        plot_acf(self.df_filled_forward['y'].values)
-        plt.title('Autocorrelation:  filled_forward')
-        plt.show()
-        plt.close()
-
-        plt.figure()
-        plot_acf(self.diff_df_filled_forward)
-        plt.title('Autocorrelation:  diff_filled_forward')
-        plt.show()
-        plt.close()
-
+    
     #
     # PACF plots
     #
-    def plot_the_pacfs(self):
-        plt.figure()
-        plot_pacf(self.df_original['y'].values)
-        plt.title('Partial Autocorrelation:  original')
-        plt.show()
-        plt.close()
+    #def plot_the_pacfs(self):
+    #    plt.figure()
+    #    plot_pacf(self.df_original['y'].values)
+    #    plt.title('Partial Autocorrelation:  original')
+    #    plt.show()
+    #    plt.close()
+    #
+    #    plt.figure()
+    #    plot_pacf(self.df_diff_original['y'])
+    #    plt.title('Partial Autocorrelation:  diff_original')
+    #    plt.show()
+    #    plt.close()
+    #
+    #    plt.figure()
+    #    plot_pacf(self.df_diff_original['y'])
+    #    plt.ylim([-0.025, 0.025])  # hard-coded... ugg... Fix This!
+    #    plt.title('Partial Autocorrelation:  diff_original (Zoomed-In)')
+    #    plt.show()
+    #    plt.close()
+    #    
+    #    plt.figure()
+    #    plot_pacf(self.df_filled_forward['y'].values)
+    #    plt.title('Partial Autocorrelation:  filled_forward')
+    #    plt.show()
+    #    plt.close()
+    #
+    #    plt.figure()
+    #    plot_pacf(self.df_diff_filled_forward['y'])
+    #    plt.title('Partial Autocorrelation:  diff_filled_forward')
+    #    plt.show()
+    #    plt.close()
+    #
+    #    plt.figure()
+    #    plot_acf(self.df_diff_filled_forward['y'])
+    #    plt.ylim([-0.025, 0.025])  # hard-coded... ugg... Fix This!
+    #    plt.title('Partial Autocorrelation:  diff_filled_forward (Zoomed-In)')
+    #    plt.show()
+    #    plt.close()
 
-        plt.figure()
-        plot_pacf(self.diff_df_original)
-        plt.title('Partial Autocorrelation:  diff_original')
-        plt.show()
-        plt.close()
-
-        plt.figure()
-        plot_pacf(self.df_filled_forward['y'].values)
-        plt.title('Partial Autocorrelation:  filled_forward')
-        plt.show()
-        plt.close()
-
-        plt.figure()
-        plot_pacf(self.diff_df_filled_forward)
-        plt.title('Partial Autocorrelation:  diff_filled_forward')
-        plt.show()
-        plt.close()
