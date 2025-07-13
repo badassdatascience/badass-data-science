@@ -3,7 +3,18 @@ import pandas as pd
 from pyspark import SparkConf
 from pyspark.sql import SparkSession
 
-def get_spark_session(spark_config):
+spark_config_default = [
+    ('spark.executor.memory', '100g'),
+    ('spark.executor.cores', '20'),
+    ('spark.cores.max', '20'),
+    ('spark.driver.memory', '100g'),
+    ('spark.sql.execution.arrow.pyspark.enabled', 'true'),
+
+    ('spark.sql.shuffle.partitions', '20'),
+    ('spark.sql.execution.arrow.pyspark.enabled', 'true'),
+]
+
+def get_spark_session(spark_config = spark_config_default):
 
     #
     # move this to a config file
