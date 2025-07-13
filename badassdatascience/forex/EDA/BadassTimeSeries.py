@@ -3,9 +3,6 @@ import pandas as pd
 from scipy import stats
 import matplotlib.pyplot as plt
 
-#from statsmodels.graphics.tsaplots import plot_acf
-#from statsmodels.graphics.tsaplots import plot_pacf
-
 from badassdatascience.utilities.badass_timeseries import stationarity_and_detrending as sd
 
 from badassdatascience.utilities.badass_timeseries.acf_and_pacf import center_the_ci_around_zero
@@ -212,17 +209,17 @@ class BadassTimeSeries():
 
 
     def plot_acf_and_pacf(self, first_lag = 1):
-        plot_acf_and_pacf_the_way_emily_wants_it(self.acf_original, self.aCI_original, 'ACF Original', first_lag = first_lag)
-        plot_acf_and_pacf_the_way_emily_wants_it(self.pacf_original, self.paCI_original, 'PACF Original', first_lag = first_lag)
+        plot_acf_and_pacf_the_way_emily_wants_it(self.acf_original, self.aCI_original, 'ACF Original', first_lag = first_lag, name = self.name)
+        plot_acf_and_pacf_the_way_emily_wants_it(self.pacf_original, self.paCI_original, 'PACF Original', first_lag = first_lag, name = self.name)
 
-        plot_acf_and_pacf_the_way_emily_wants_it(self.acf_diff_original, self.aCI_diff_original, 'ACF Diff Original', first_lag = first_lag)
-        plot_acf_and_pacf_the_way_emily_wants_it(self.pacf_diff_original, self.paCI_diff_original, 'PACF Diff Original', first_lag = first_lag)
+        plot_acf_and_pacf_the_way_emily_wants_it(self.acf_diff_original, self.aCI_diff_original, 'ACF Diff Original', first_lag = first_lag, name = self.name)
+        plot_acf_and_pacf_the_way_emily_wants_it(self.pacf_diff_original, self.paCI_diff_original, 'PACF Diff Original', first_lag = first_lag, name = self.name)
 
-        plot_acf_and_pacf_the_way_emily_wants_it(self.acf_filled_forward, self.aCI_filled_forward, 'ACF Filled Forward', first_lag = first_lag)
-        plot_acf_and_pacf_the_way_emily_wants_it(self.pacf_filled_forward, self.paCI_filled_forward, 'PACF Filled Forward', first_lag = first_lag)
+        plot_acf_and_pacf_the_way_emily_wants_it(self.acf_filled_forward, self.aCI_filled_forward, 'ACF Filled Forward', first_lag = first_lag, name = self.name)
+        plot_acf_and_pacf_the_way_emily_wants_it(self.pacf_filled_forward, self.paCI_filled_forward, 'PACF Filled Forward', first_lag = first_lag, name = self.name)
 
-        plot_acf_and_pacf_the_way_emily_wants_it(self.acf_diff_filled_forward, self.aCI_diff_filled_forward, 'ACF Diff Filled Forward', first_lag = first_lag)
-        plot_acf_and_pacf_the_way_emily_wants_it(self.pacf_diff_filled_forward, self.paCI_diff_filled_forward, 'PACF Diff Filled Forward', first_lag = first_lag)
+        plot_acf_and_pacf_the_way_emily_wants_it(self.acf_diff_filled_forward, self.aCI_diff_filled_forward, 'ACF Diff Filled Forward', first_lag = first_lag, name = self.name)
+        plot_acf_and_pacf_the_way_emily_wants_it(self.pacf_diff_filled_forward, self.paCI_diff_filled_forward, 'PACF Diff Filled Forward', first_lag = first_lag, name = self.name)
 
 
 

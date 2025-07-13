@@ -16,7 +16,7 @@ def compute_pacf_the_way_emily_wants_it(x, alpha = 0.05, nlags = 49):
     cf, ci = pacf(x, alpha = alpha, nlags = nlags)
     return cf, ci
 
-def plot_acf_and_pacf_the_way_emily_wants_it(cf, CI, title, first_lag = 0):
+def plot_acf_and_pacf_the_way_emily_wants_it(cf, CI, title, first_lag = 0, name = 'mid_c'):
     plt.figure()
 
     plt.plot(np.arange(first_lag, len(cf)), cf[first_lag:], '.', color = 'blue')
@@ -27,7 +27,7 @@ def plot_acf_and_pacf_the_way_emily_wants_it(cf, CI, title, first_lag = 0):
     for i, y in zip(np.arange(first_lag, len(cf)), cf[first_lag:]):
         plt.plot([i, i], [0., y], color = 'blue')
 
-    plt.title(title)
+    plt.title(title + ' (' + name + ')')
     plt.show()
     plt.close()
 
